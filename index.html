@@ -17,9 +17,10 @@
       align-items: stretch;
     }
 
+    /* Main container */
     .app {
       width: 100%;
-      max-width: 480px;
+      max-width: 480px;          /* mobile-style width */
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -30,6 +31,29 @@
       position: relative;
     }
 
+    /* On small screens (phones) – full width */
+    @media (max-width: 520px) {
+      .app {
+        max-width: 100%;
+        border-left: none;
+        border-right: none;
+      }
+    }
+
+    /* On bigger screens (laptops / tablets) – wider desktop view */
+    @media (min-width: 900px) {
+      body {
+        align-items: center;
+      }
+
+      .app {
+        max-width: 900px;        /* make it wide on laptop */
+        min-height: 90vh;
+        border-radius: 18px;
+        margin: 24px auto;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+      }
+    }
     .top-bar {
       display: flex;
       align-items: center;
@@ -296,4 +320,5 @@
     });
   </script>
 </body>
+
 </html>
