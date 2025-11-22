@@ -27,6 +27,7 @@
       background: #fdf7f0;
       border-left: 1px solid #e5d4c2;
       border-right: 1px solid #e5d4c2;
+      position: relative;
     }
 
     /* Wider on laptop */
@@ -52,7 +53,7 @@
       backdrop-filter: blur(8px);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
     }
 
     .brand-left {
@@ -84,16 +85,74 @@
       color: #374151;
     }
 
+    /* Settings menu */
+    .settings-menu {
+      position: absolute;
+      top: 56px;
+      right: 12px;
+      width: 210px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
+      padding: 10px 0;
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 30;
+    }
+    .settings-menu.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .settings-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 14px 6px;
+    }
+    .settings-divider {
+      height: 1px;
+      margin: 4px 0 6px;
+      background: #f3f4f6;
+    }
+    .settings-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 8px 14px;
+      text-align: left;
+      font-size: 14px;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .settings-item span.label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .settings-item small {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .settings-item:hover { background: #f3f4ff; }
+    .danger { color: #b91c1c; }
+
     /* Center area */
     .main {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 24px 20px 16px;
+      padding: 20px 18px 8px;
       text-align: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     /* BIG infinity in the middle */
@@ -128,6 +187,38 @@
       font-size: 14px;
       color: #4b5563;
       max-width: 260px;
+      margin-bottom: 6px;
+    }
+
+    /* Quick action chips (what to study, MCQs, history) */
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+      margin-bottom: 6px;
+    }
+
+    .qa-pill {
+      border: none;
+      background: #fff7ec;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+
+    .qa-pill span.icon {
+      font-size: 15px;
+    }
+
+    .qa-pill:hover {
+      background: #fde7c8;
     }
 
     /* Bottom search / chat bar */
@@ -143,8 +234,16 @@
       gap: 8px;
       background: #ffffff;
       border-radius: 999px;
-      padding: 6px 8px 6px 14px;
+      padding: 6px 8px 6px 10px;
       box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+    }
+
+    .upload-btn {
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      padding: 4px;
+      cursor: pointer;
     }
 
     .input-row input {
@@ -185,24 +284,85 @@
         <div class="logo-small">∞</div>
         <div class="brand-text">SALTUS ARMORIS</div>
       </div>
-      <button class="menu-btn" title="Settings">⋮</button>
+      <button class="menu-btn" title="Settings" onclick="toggleSettings()">⋮</button>
     </header>
+
+    <!-- SETTINGS DROPDOWN -->
+    <div id="settings-menu" class="settings-menu">
+      <div class="settings-title">Settings</div>
+      <div class="settings-divider"></div>
+
+      <button class="settings-item">
+        <span class="label">👤 Profile</span>
+        <small>soon</small>
+      </button>
+
+      <button class="settings-item">
+        <span class="label">🎨 Theme</span>
+        <small>light / dark</small>
+      </button>
+
+      <button class="settings-item">
+        <span class="label">ℹ️ About MEBI</span>
+        <small>what I do</small>
+      </button>
+
+      <div class="settings-divider"></div>
+
+      <button class="settings-item danger">
+        <span class="label">🧹 Clear chat</span>
+        <small>coming soon</small>
+      </button>
+    </div>
 
     <!-- CENTER CONTENT -->
     <main class="main">
       <div class="logo-big">∞</div>
       <p class="hello">Hi, I'm <span>MEBI</span> 👋</p>
       <p class="sub">How can I help you today?</p>
+
+      <!-- Quick action chips -->
+      <div class="quick-actions">
+        <button class="qa-pill">
+          <span class="icon">📚</span>
+          <span>What to study</span>
+        </button>
+        <button class="qa-pill">
+          <span class="icon">❓</span>
+          <span>MCQs & practice</span>
+        </button>
+        <button class="qa-pill">
+          <span class="icon">🕒</span>
+          <span>History</span>
+        </button>
+      </div>
     </main>
 
     <!-- BOTTOM SEARCH BAR -->
     <footer class="bottom-bar">
       <div class="input-row">
+        <button class="upload-btn" title="Upload / copy image or file">📄</button>
         <input type="text" placeholder="Type your question here..." />
         <button class="send-btn">➤</button>
       </div>
-      <p class="hint">Chat is not connected yet – UI only. We’ll add the AI brain later.</p>
+      <p class="hint">UI only now – upload, history & MCQs will work when we connect the AI brain.</p>
     </footer>
   </div>
+
+  <script>
+    function toggleSettings() {
+      const menu = document.getElementById("settings-menu");
+      menu.classList.toggle("open");
+    }
+
+    // Close settings if click outside
+    document.addEventListener("click", function (e) {
+      const menu = document.getElementById("settings-menu");
+      const btn = document.querySelector(".menu-btn");
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.remove("open");
+      }
+    });
+  </script>
 </body>
 </html>
