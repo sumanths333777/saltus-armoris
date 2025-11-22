@@ -7,28 +7,19 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <body>
-  <div class="layout">
-    
-    <!-- DESKTOP SIDEBAR -->
-    <div class="sidebar">
-      <button>🧠 MEBI Home</button>
-      <button>📚 Study Mode</button>
-      <button>📷 Upload Image</button>
-      <button>📝 MCQ Quiz</button>
-      <button>⚙️ Settings</button>
-    </div>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f8f1e8;   /* creamy */
+      color: #111827;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
 
-    <!-- MAIN APP --><body>
-  <div class="layout">
-
-
-    <!-- MAIN APP -->
-
-    /* Main container */
     .app {
       width: 100%;
-      max-width: 480px;          /* mobile-style width */
+      max-width: 480px;        /* phone style */
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -36,70 +27,21 @@
       background: #fdf7f0;
       border-left: 1px solid #e5d4c2;
       border-right: 1px solid #e5d4c2;
-      position: relative;
     }
 
-    /* On small screens (phones) – full width */
-    @media (max-width: 520px) {
+    /* Wider on laptop */
+    @media (min-width: 900px) {
+      body { align-items: center; }
       .app {
-        max-width: 100%;
-        border-left: none;
-        border-right: none;
-      }
-    }
-
-   /* DESKTOP SIDEBAR */
-@media (min-width: 900px) {
-
-  .layout {
-    display: flex;
-    gap: 20px;
-    width: 100%;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .sidebar {
-    width: 220px;
-    height: 90vh;
-    background: white;
-    border-radius: 14px;
-    padding: 20px 10px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  .sidebar button {
-    padding: 12px;
-    border: none;
-    background: #f3eee7;
-    border-radius: 10px;
-    text-align: left;
-    font-size: 15px;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-
-  .sidebar button:hover {
-    background: #e8ded5;
-  }
-
-  .app {
-    max-width: 700px !important;
-  }
-
-}
-
-      .app {
-        max-width: 900px;        /* make it wide on laptop */
+        max-width: 780px;
         min-height: 90vh;
         border-radius: 18px;
         margin: 24px auto;
         box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
       }
     }
+
+    /* Top bar */
     .top-bar {
       display: flex;
       align-items: center;
@@ -110,30 +52,26 @@
       backdrop-filter: blur(8px);
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 10;
     }
 
-    .top-left { display: flex; align-items: center; gap: 8px; }
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-    .logo {
-      font-size: 26px;
+    .logo-small {
+      font-size: 22px;
       font-weight: 700;
       color: #1f3b73;
-      animation: floatInfinity 3s ease-in-out infinite;
     }
 
-    @keyframes floatInfinity {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
-      100% { transform: translateY(0); }
-    }
-
-    .brand {
-      font-size: 16px;
+    .brand-text {
+      font-size: 15px;
       font-weight: 600;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #111827;
     }
 
     .menu-btn {
@@ -146,73 +84,7 @@
       color: #374151;
     }
 
-    /* Settings menu */
-    .settings-menu {
-      position: absolute;
-      top: 56px;
-      right: 12px;
-      width: 210px;
-      background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
-      padding: 10px 0;
-      opacity: 0;
-      transform: translateY(-8px);
-      pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
-      z-index: 30;
-    }
-
-    .settings-menu.open {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .settings-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 2px 14px 6px;
-    }
-
-    .settings-divider {
-      height: 1px;
-      margin: 4px 0 6px;
-      background: #f3f4f6;
-    }
-
-    .settings-item {
-      width: 100%;
-      border: none;
-      background: transparent;
-      padding: 8px 14px;
-      text-align: left;
-      font-size: 14px;
-      color: #111827;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-    }
-
-    .settings-item span.label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .settings-item small {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .settings-item:hover { background: #f3f4ff; }
-
-    .danger { color: #b91c1c; }
-
+    /* Center area */
     .main {
       flex: 1;
       display: flex;
@@ -221,12 +93,28 @@
       justify-content: center;
       padding: 24px 20px 16px;
       text-align: center;
+      gap: 10px;
+    }
+
+    /* BIG infinity in the middle */
+    .logo-big {
+      font-size: 80px;
+      font-weight: 800;
+      color: #1f3b73;
+      animation: floatInfinity 3s ease-in-out infinite;
+      text-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+    }
+
+    @keyframes floatInfinity {
+      0%   { transform: translateY(0); }
+      50%  { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
     }
 
     .hello {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-top: 4px;
     }
 
     .hello span {
@@ -242,6 +130,7 @@
       max-width: 260px;
     }
 
+    /* Bottom search / chat bar */
     .bottom-bar {
       padding: 10px 12px 16px;
       background: #f3e5d6;
@@ -255,7 +144,7 @@
       background: #ffffff;
       border-radius: 999px;
       padding: 6px 8px 6px 14px;
-      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
     }
 
     .input-row input {
@@ -286,62 +175,27 @@
       color: #6b7280;
       text-align: center;
     }
-
-    @media (max-width: 520px) {
-      .app {
-        max-width: 100%;
-        border-left: none;
-        border-right: none;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- Top bar -->
+    <!-- TOP BAR -->
     <header class="top-bar">
-      <div class="top-left">
-        <div class="logo">∞</div>
-        <div class="brand">SALTUS ARMORIS</div>
+      <div class="brand-left">
+        <div class="logo-small">∞</div>
+        <div class="brand-text">SALTUS ARMORIS</div>
       </div>
-      <button class="menu-btn" title="Settings" onclick="toggleSettings()">⋮</button>
+      <button class="menu-btn" title="Settings">⋮</button>
     </header>
 
-    <!-- Settings dropdown -->
-    <div id="settings-menu" class="settings-menu">
-      <div class="settings-title">Settings</div>
-      <div class="settings-divider"></div>
-
-      <button class="settings-item">
-        <span class="label">👤 Profile</span>
-        <small>soon</small>
-      </button>
-
-      <button class="settings-item">
-        <span class="label">🎨 Theme</span>
-        <small>light / dark</small>
-      </button>
-
-      <button class="settings-item">
-        <span class="label">ℹ️ About MEBI</span>
-        <small>what I do</small>
-      </button>
-
-      <div class="settings-divider"></div>
-
-      <button class="settings-item danger">
-        <span class="label">🧹 Clear chat</span>
-        <small>coming soon</small>
-      </button>
-    </div>
-
-    <!-- Center text -->
+    <!-- CENTER CONTENT -->
     <main class="main">
+      <div class="logo-big">∞</div>
       <p class="hello">Hi, I'm <span>MEBI</span> 👋</p>
       <p class="sub">How can I help you today?</p>
     </main>
 
-    <!-- Bottom search / chat bar -->
+    <!-- BOTTOM SEARCH BAR -->
     <footer class="bottom-bar">
       <div class="input-row">
         <input type="text" placeholder="Type your question here..." />
@@ -350,24 +204,5 @@
       <p class="hint">Chat is not connected yet – UI only. We’ll add the AI brain later.</p>
     </footer>
   </div>
-
-  <script>
-    function toggleSettings() {
-      const menu = document.getElementById("settings-menu");
-      menu.classList.toggle("open");
-    }
-
-    document.addEventListener("click", function (e) {
-      const menu = document.getElementById("settings-menu");
-      const btn = document.querySelector(".menu-btn");
-      if (!menu.contains(e.target) && !btn.contains(e.target)) {
-        menu.classList.remove("open");
-      }
-    });
-  </script>
 </body>
-
 </html>
-
-
-
