@@ -1,368 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SALTUS ARMORIS – MEBI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      background: #f8f1e8;   /* creamy */
-      color: #111827;
-      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+      background: #f8f1e8; /* creamy */
       display: flex;
       justify-content: center;
-      align-items: stretch;
+      min-height: 100vh;
     }
 
+    /* Main app */
     .app {
       width: 100%;
-      max-width: 480px;        /* phone style */
+      max-width: 480px;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      margin: 0 auto;
       background: #fdf7f0;
       border-left: 1px solid #e5d4c2;
       border-right: 1px solid #e5d4c2;
+      display: flex;
+      flex-direction: column;
       position: relative;
     }
 
-    /* Wider on laptop */
-    @media (min-width: 900px) {
-      body { align-items: center; }
+    @media (min-width: 900px){
       .app {
         max-width: 780px;
-        min-height: 90vh;
-        border-radius: 18px;
-        margin: 24px auto;
-        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+        border-radius: 20px;
+        margin: 20px 0;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.2);
       }
     }
 
     /* Top bar */
-    .top-bar {
+    .topbar {
+      height: 55px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: 0 16px;
       border-bottom: 1px solid #e5d4c2;
-      background: rgba(248, 241, 232, 0.9);
+      background: rgba(248,241,232,0.9);
       backdrop-filter: blur(8px);
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 10;
     }
 
-    .brand-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .menu-icon {
+      font-size: 25px;
+      cursor: pointer;
     }
 
     .logo-small {
-      font-size: 22px;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: bold;
       color: #1f3b73;
     }
 
-    .brand-text {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .menu-btn {
-      border: none;
-      background: transparent;
-      font-size: 22px;
-      cursor: pointer;
-      padding: 4px;
-      line-height: 1;
-      color: #374151;
-    }
-
-    /* Settings menu */
-    .settings-menu {
+    /* Slide sidebar (hidden) */
+    .sidebar {
       position: absolute;
-      top: 56px;
-      right: 12px;
-      width: 210px;
+      top: 0;
+      left: -250px;
+      width: 230px;
+      height: 100%;
       background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
-      padding: 10px 0;
-      opacity: 0;
-      transform: translateY(-8px);
-      pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
-      z-index: 30;
+      box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+      padding-top: 60px;
+      transition: 0.3s ease;
+      z-index: 50;
     }
-    .settings-menu.open {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
+
+    .sidebar.open {
+      left: 0;
     }
-    .settings-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 2px 14px 6px;
-    }
-    .settings-divider {
-      height: 1px;
-      margin: 4px 0 6px;
-      background: #f3f4f6;
-    }
-    .settings-item {
-      width: 100%;
-      border: none;
-      background: transparent;
-      padding: 8px 14px;
-      text-align: left;
-      font-size: 14px;
-      color: #111827;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+
+    .side-item {
+      font-size: 17px;
+      padding: 14px 18px;
+      border-bottom: 1px solid #eee;
       cursor: pointer;
     }
-    .settings-item span.label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .settings-item small {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-    .settings-item:hover { background: #f3f4ff; }
-    .danger { color: #b91c1c; }
 
-    /* Center area */
+    .side-item:hover {
+      background: #f5f5f5;
+    }
+
+    /* Main center content */
     .main {
       flex: 1;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
-      padding: 20px 18px 8px;
       text-align: center;
-      gap: 12px;
+      padding: 20px;
+      gap: 10px;
     }
 
-    /* BIG infinity in the middle */
+    /* Big infinity */
     .logo-big {
-      font-size: 80px;
-      font-weight: 800;
+      font-size: 90px;
+      font-weight: bold;
       color: #1f3b73;
-      animation: floatInfinity 3s ease-in-out infinite;
-      text-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+      animation: float 3s ease-in-out infinite;
+      text-shadow: 0px 10px 20px rgba(0,0,0,0.2);
     }
 
-    @keyframes floatInfinity {
-      0%   { transform: translateY(0); }
-      50%  { transform: translateY(-10px); }
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
       100% { transform: translateY(0); }
     }
 
     .hello {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
-      margin-top: 4px;
     }
 
     .hello span {
-      color: #1f3b73;
       background: #e5edff;
       padding: 2px 6px;
       border-radius: 6px;
+      color: #1f3b73;
     }
 
     .sub {
       font-size: 14px;
-      color: #4b5563;
-      max-width: 260px;
-      margin-bottom: 6px;
+      color: #555;
     }
 
-    /* Quick action chips (what to study, MCQs, history) */
-    .quick-actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 4px;
-      margin-bottom: 6px;
-    }
-
-    .qa-pill {
-      border: none;
-      background: #fff7ec;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 13px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
-    }
-
-    .qa-pill span.icon {
-      font-size: 15px;
-    }
-
-    .qa-pill:hover {
-      background: #fde7c8;
-    }
-
-    /* Bottom search / chat bar */
-    .bottom-bar {
-      padding: 10px 12px 16px;
+    /* Bottom input */
+    .bottombar {
+      padding: 12px;
       background: #f3e5d6;
       border-top: 1px solid #e5d4c2;
     }
 
     .input-row {
+      background: #fff;
+      border-radius: 40px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: #ffffff;
-      border-radius: 999px;
-      padding: 6px 8px 6px 10px;
-      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+      padding: 6px 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      gap: 6px;
     }
 
     .upload-btn {
-      border: none;
-      background: transparent;
       font-size: 18px;
-      padding: 4px;
+      background: none;
+      border: none;
       cursor: pointer;
     }
 
-    .input-row input {
+    input {
       flex: 1;
       border: none;
       outline: none;
-      font-size: 14px;
-      background: transparent;
+      font-size: 15px;
+      background: none;
     }
 
     .send-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: none;
       background: #1f3b73;
-      color: #ffffff;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
       font-size: 18px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hint {
-      margin-top: 6px;
-      font-size: 11px;
-      color: #6b7280;
-      text-align: center;
     }
   </style>
 </head>
+
 <body>
   <div class="app">
-    <!-- TOP BAR -->
-    <header class="top-bar">
-      <div class="brand-left">
-        <div class="logo-small">∞</div>
-        <div class="brand-text">SALTUS ARMORIS</div>
-      </div>
-      <button class="menu-btn" title="Settings" onclick="toggleSettings()">⋮</button>
-    </header>
 
-    <!-- SETTINGS DROPDOWN -->
-    <div id="settings-menu" class="settings-menu">
-      <div class="settings-title">Settings</div>
-      <div class="settings-divider"></div>
-
-      <button class="settings-item">
-        <span class="label">👤 Profile</span>
-        <small>soon</small>
-      </button>
-
-      <button class="settings-item">
-        <span class="label">🎨 Theme</span>
-        <small>light / dark</small>
-      </button>
-
-      <button class="settings-item">
-        <span class="label">ℹ️ About MEBI</span>
-        <small>what I do</small>
-      </button>
-
-      <div class="settings-divider"></div>
-
-      <button class="settings-item danger">
-        <span class="label">🧹 Clear chat</span>
-        <small>coming soon</small>
-      </button>
+    <!-- Slide Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="side-item">👤 Profile</div>
+      <div class="side-item">📚 Study</div>
+      <div class="side-item">❓ MCQs</div>
+      <div class="side-item">🕒 History</div>
+      <div class="side-item">⚙️ Settings</div>
     </div>
 
-    <!-- CENTER CONTENT -->
-    <main class="main">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="menu-icon" onclick="toggleMenu()">☰</div>
+      <div class="logo-small">∞ SALTUS ARMORIS</div>
+      <div></div>
+    </div>
+
+    <!-- Center -->
+    <div class="main">
       <div class="logo-big">∞</div>
-      <p class="hello">Hi, I'm <span>MEBI</span> 👋</p>
-      <p class="sub">How can I help you today?</p>
+      <div class="hello">Hi, I'm <span>MEBI</span> 👋</div>
+      <div class="sub">How can I help you today?</div>
+    </div>
 
-      <!-- Quick action chips -->
-      <div class="quick-actions">
-        <button class="qa-pill">
-          <span class="icon">📚</span>
-          <span>What to study</span>
-        </button>
-        <button class="qa-pill">
-          <span class="icon">❓</span>
-          <span>MCQs & practice</span>
-        </button>
-        <button class="qa-pill">
-          <span class="icon">🕒</span>
-          <span>History</span>
-        </button>
-      </div>
-    </main>
-
-    <!-- BOTTOM SEARCH BAR -->
-    <footer class="bottom-bar">
+    <!-- Bottom Search -->
+    <div class="bottombar">
       <div class="input-row">
-        <button class="upload-btn" title="Upload / copy image or file">📄</button>
-        <input type="text" placeholder="Type your question here..." />
+        <button class="upload-btn">📄</button>
+        <input placeholder="Type your question here...">
         <button class="send-btn">➤</button>
       </div>
-      <p class="hint">UI only now – upload, history & MCQs will work when we connect the AI brain.</p>
-    </footer>
+    </div>
+
   </div>
 
-  <script>
-    function toggleSettings() {
-      const menu = document.getElementById("settings-menu");
-      menu.classList.toggle("open");
-    }
+<script>
+function toggleMenu(){
+  document.getElementById("sidebar").classList.toggle("open");
+}
+</script>
 
-    // Close settings if click outside
-    document.addEventListener("click", function (e) {
-      const menu = document.getElementById("settings-menu");
-      const btn = document.querySelector(".menu-btn");
-      if (!menu.contains(e.target) && !btn.contains(e.target)) {
-        menu.classList.remove("open");
-      }
-    });
-  </script>
 </body>
-</html>
+</
