@@ -425,44 +425,53 @@
     }
 
     // Simple front-end chat demo
-    function sendMessage() {
-      const input = document.getElementById('userInput');
-      const text = input.value.trim();
-      if (!text) return;
+ // Simple front-end chat demo
+function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text) return;
 
-      const chat = document.getElementById('chatArea');
-      const typing = document.getElementById('typing');
+    const chat = document.getElementById('chatArea');
+    const typing = document.getElementById('typing');
 
-      // user bubble
-      const userBubble = document.createElement('div');
-      userBubble.className = 'bubble user';
-      userBubble.textContent = text;
-      chat.appendChild(userBubble);
-      chat.scrollTop = chat.scrollHeight;
+    // show user bubble
+    const userBubble = document.createElement('div');
+    userBubble.className = 'bubble user';
+    userBubble.textContent = text;
+    chat.appendChild(userBubble);
+    chat.scrollTop = chat.scrollHeight;
 
-      input.value = '';
+    // clear input
+    input.value = '';
 
-      // show typing dots
-      typing.classList.remove('hidden');
+    // show typing indicator
+    typing.classList.remove('hidden');
 
-      // fake MEBI reply after 1 sec
-      setTimeout(() => {
+    // wait a moment and ask Gemini
+    setTimeout(async () => {
+        const reply = await askGemini(text);
         typing.classList.add('hidden');
+
         const botBubble = document.createElement('div');
         botBubble.className = 'bubble bot';
-        botBubble.textContent = "MEBI (demo): I received – “" + text + "”. Real AI brain coming soon!";
+        botBubble.textContent = reply;
         chat.appendChild(botBubble);
         chat.scrollTop = chat.scrollHeight;
-      }, 1000);
-    }
-
-    // Allow Enter key to send
-    document.getElementById('userInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
-      }
+    }, 800);
+}
+async function askGemini(question) {
+    const response = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
     });
+
+    const data = await response.json();
+    return data.reply || "Sorry, something went wrong!";
+}
+
+}
   </script>
 </body>
+
 </html>
