@@ -428,60 +428,14 @@
       }
     }
 
-    // Simple front-end chat demo
-    function sendMessage() {
-      const input = document.getElementById('userInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      const chat = document.getElementById('chatArea');
-      const typing = document.getElementById('typing');
-
-      // user bubble
-      const userBubble = document.createElement('div');
-      userBubble.className = 'bubble user';
-      userBubble.textContent = text;
-      chat.appendChild(userBubble);
-      chat.scrollTop = chat.scrollHeight;
-
-      input.value = '';
-
-      // show typing dots
       typing.classList.remove('hidden');
 
-      // fake MEBI reply after 1 sec
-      setTimeout(() => {
-        typing.classList.add('hidden');
-        // user bubble
-const userBubble = document.createElement('div');
-userBubble.className = 'bubble user';
-userBubble.textContent = text;
-chat.appendChild(userBubble);
-chat.scrollTop = chat.scrollHeight;
-
-// Save user message
-if (window.saveMessage) {
-    saveMessage("user", text);
 }
     }
 
-    // Allow Enter key to send
-    document.getElementById('userInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();const replyText = "MEBI (demo): I received – “" + text + "”. Real AI brain coming soon!";
-const botBubble = document.createElement('div');
-    });
-  </script>// user bubble
-const userBubble = document.createElement('div');
-userBubble.className = 'bubble user';
-userBubble.textContent = text;
-chat.appendChild(userBubble);
-chat.scrollTop = chat.scrollHeight;
-// save USER message to Firebase
-if (window.saveMessage) {
-  saveMessage("user", text);
-}
+    
+  </script>
+
 </body>
 
 </html>
