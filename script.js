@@ -11,7 +11,33 @@ if (window.firebase && !firebase.apps.length) {
   window.mebiDb = db; // we can use this later to save chats
   console.log("MEBI: Firebase connected");
 }Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// ----- Initialize Firebase -----
+let db = null;
+
+if (window.firebase) {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  db = firebase.firestore();
+  window.mebiDb = db;
+  console.log("MEBI: Firebase connected");
+}
+
+// ----- Save a message to Firestore -----
+async function saveMessage(role, text) {
+  if (!db) return; // Firebase not ready
+
+  try {
+    await db.collection("messages").add({
+      role: role,          // "user" or "mebi"
+      text: text,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    console.log("MEBI: message saved");
+  } catch (err) {
+    console.error("MEBI: error saving message", err);
+  }
+}// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAkKHUv5c9-18rSF0xxr_xbEZW5F6HE5MI",
   authDomain: "saltus-armoris.firebaseapp.com",
