@@ -4,7 +4,13 @@ import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
+// // Initialize Firebase safely
+if (window.firebase && !firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  window.mebiDb = db; // we can use this later to save chats
+  console.log("MEBI: Firebase connected");
+}Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAkKHUv5c9-18rSF0xxr_xbEZW5F6HE5MI",
