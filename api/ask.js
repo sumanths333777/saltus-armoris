@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   }
 
   const { question } = req.body;
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey =GEMINI_API_KEY;
 
   if (!apiKey) {
     return res.status(500).json({ reply: "Server API key missing" });
