@@ -423,9 +423,7 @@
         preview.textContent = "";
       }
     }
-
-    // Simple front-end chat demo
- // Simple front-end chat demo
+<script>
 function sendMessage() {
     const input = document.getElementById('userInput');
     const text = input.value.trim();
@@ -434,22 +432,21 @@ function sendMessage() {
     const chat = document.getElementById('chatArea');
     const typing = document.getElementById('typing');
 
-    // show user bubble
+    // USER bubble
     const userBubble = document.createElement('div');
     userBubble.className = 'bubble user';
     userBubble.textContent = text;
     chat.appendChild(userBubble);
     chat.scrollTop = chat.scrollHeight;
 
-    // clear input
-    input.value = '';
+    input.value = "";
 
-    // show typing indicator
+    // show typing
     typing.classList.remove('hidden');
 
-    // wait a moment and ask Gemini
+    // wait & ask API
     setTimeout(async () => {
-        const reply = await askGemini(text);
+        const reply = await askMebi(text);
         typing.classList.add('hidden');
 
         const botBubble = document.createElement('div');
@@ -459,9 +456,10 @@ function sendMessage() {
         chat.scrollTop = chat.scrollHeight;
     }, 800);
 }
-async function askGemini(question) {
-    const response = await fetch("/api/ask", {
-        method: "POST",
+
+async function askMebi(question) {
+    const response = await fetch('/api/ask', {
+        method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question })
     });
@@ -469,9 +467,13 @@ async function askGemini(question) {
     const data = await response.json();
     return data.reply || "Sorry, something went wrong!";
 }
+</script>
+</body>
+</html>
 
 }
   </script>
 </body>
 
 </html>
+
