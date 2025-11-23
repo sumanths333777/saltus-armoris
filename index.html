@@ -464,10 +464,29 @@
     document.getElementById('userInput').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
-        sendMessage();
+        sendMessage();const replyText = "MEBI (demo): I received – “" + text + "”. Real AI brain coming soon!";
+const botBubble = document.createElement('div');
+botBubble.className = 'bubble bot';
+botBubble.textContent = replyText;
+chat.appendChild(botBubble);
+chat.scrollTop = chat.scrollHeight;
+// save MEBI message to Firebase
+if (window.saveMessage) {
+  saveMessage("mebi", replyText);
+}        
       }
     });
-  </script>
+  </script>// user bubble
+const userBubble = document.createElement('div');
+userBubble.className = 'bubble user';
+userBubble.textContent = text;
+chat.appendChild(userBubble);
+chat.scrollTop = chat.scrollHeight;
+// save USER message to Firebase
+if (window.saveMessage) {
+  saveMessage("user", text);
+}
 </body>
 
 </html>
+
