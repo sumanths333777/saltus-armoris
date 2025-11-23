@@ -1,0 +1,51 @@
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const chat = document.getElementById('chat');
+  const typing = document.getElementById('typing');
+
+  // user bubble
+  const userBubble = document.createElement('div');
+  userBubble.className = 'bubble user';
+  userBubble.textContent = text;
+  chat.appendChild(userBubble);
+  chat.scrollTop = chat.scrollHeight;
+
+  input.value = '';
+
+  // show typing dots
+  typing.classList.remove('hidden');
+
+  try {
+    // call our backend on Vercel
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await response.json();
+    const replyText = data.reply || "MEBI: Something went wrong, try again.";
+
+    typing.classList.add('hidden');
+
+    // bot bubble
+    const botBubble = document.createElement('div');
+    botBubble.className = 'bubble bot';
+    botBubble.textContent = replyText;
+    chat.appendChild(botBubble);
+    chat.scrollTop = chat.scrollHeight;
+
+  } catch (err) {
+    console.error(err);
+    typing.classList.add('hidden');
+
+    const botBubble = document.createElement('div');
+    botBubble.className = 'bubble bot';
+    botBubble.textContent = "MEBI: Network error. Please try again.";
+    chat.appendChild(botBubble);
+    chat.scrollTop = chat.scrollHeight;
+  }
+}
