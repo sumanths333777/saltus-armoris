@@ -452,12 +452,17 @@
       // fake MEBI reply after 1 sec
       setTimeout(() => {
         typing.classList.add('hidden');
-        const botBubble = document.createElement('div');
-        botBubble.className = 'bubble bot';
-        botBubble.textContent = "MEBI (demo): I received – “" + text + "”. Real AI brain coming soon!";
-        chat.appendChild(botBubble);
-        chat.scrollTop = chat.scrollHeight;
-      }, 1000);
+        // user bubble
+const userBubble = document.createElement('div');
+userBubble.className = 'bubble user';
+userBubble.textContent = text;
+chat.appendChild(userBubble);
+chat.scrollTop = chat.scrollHeight;
+
+// Save user message
+if (window.saveMessage) {
+    saveMessage("user", text);
+}
     }
 
     // Allow Enter key to send
@@ -466,15 +471,6 @@
         e.preventDefault();
         sendMessage();const replyText = "MEBI (demo): I received – “" + text + "”. Real AI brain coming soon!";
 const botBubble = document.createElement('div');
-botBubble.className = 'bubble bot';
-botBubble.textContent = replyText;
-chat.appendChild(botBubble);
-chat.scrollTop = chat.scrollHeight;
-// save MEBI message to Firebase
-if (window.saveMessage) {
-  saveMessage("mebi", replyText);
-}        
-      }
     });
   </script>// user bubble
 const userBubble = document.createElement('div');
@@ -489,4 +485,5 @@ if (window.saveMessage) {
 </body>
 
 </html>
+
 
