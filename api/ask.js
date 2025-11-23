@@ -25,10 +25,13 @@ export default async function handler(req, res) {
     );
 
     const data = await response.json();
-    const replyText =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sorry, I couldn't understand. Try again?";
+    const data = await response.json();
 
+const replyText =
+  data.candidates?.[0]?.content?.parts?.map(p => p.text).join(" ") ||
+  "Sorry, I couldn't understand. Try again?";
+
+return res.status(200).json({ reply: replyText });
     return res.status(200).json({ reply: replyText });
   } catch (err) {
     console.error(err);
