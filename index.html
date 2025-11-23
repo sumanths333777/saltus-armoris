@@ -1,34 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>SALTUS ARMORIS – MEBI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #f7efe3;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f8f1e8;           /* creamy */
+      color: #111827;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      color: #1f2933;
+      justify-content: center;
+      align-items: stretch;
     }
 
-    /* App bar */
-    header.app-bar {
+    .app {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background: #fdf7f0;
+      border-left: 1px solid #e5d4c2;
+      border-right: 1px solid #e5d4c2;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* wider card on laptop */
+    @media (min-width: 900px) {
+      body { align-items: center; }
+      .app {
+        max-width: 780px;
+        min-height: 90vh;
+        margin: 24px auto;
+        border-radius: 20px;
+        box-shadow: 0 14px 40px rgba(15, 23, 42, 0.18);
+      }
+    }
+
+    /* top bar */
+    .topbar {
+      height: 56px;
+      display: flex;
       align-items: center;
-      padding: 10px 16px;
-      background: #f4e4d6;
-      border-bottom: 1px solid #e1d2c2;
+      justify-content: space-between;
+      padding: 0 14px;
+      border-bottom: 1px solid #e5d4c2;
+      background: rgba(248,241,232,0.9);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
     }
 
     .top-left {
@@ -37,388 +63,406 @@
       gap: 8px;
     }
 
-    .brand {
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      font-size: 0.9rem;
-    }
-
     .icon-btn {
       border: none;
-      background: #ffffff;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 1rem;
+      background: transparent;
+      font-size: 22px;
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      padding: 4px;
+      line-height: 1;
     }
 
-    .icon-btn.small {
-      padding: 6px;
-      font-size: 0.95rem;
+    .brand-text {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    .icon-btn:active {
-      transform: scale(0.97);
-    }
-
-    /* Side study panel */
-    .side-panel {
-      position: fixed;
-      top: 48px;
-      left: 8px;
+    /* STUDY + SETTINGS MENUS */
+    .study-menu,
+    .settings-menu {
+      position: absolute;
+      top: 56px;
       width: 210px;
-      max-width: 70vw;
       background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15);
-      padding: 12px 14px;
+      border-radius: 14px;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.22);
+      padding: 8px 0;
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(-8px);
       pointer-events: none;
-      transition: all 0.18s ease-out;
-      z-index: 20;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 30;
     }
 
-    .side-panel.open {
+    .study-menu.open,
+    .settings-menu.open {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
     }
 
-    .side-panel h3 {
-      font-size: 0.9rem;
-      margin-bottom: 8px;
-    }
+    .study-menu { left: 10px; }
+    .settings-menu { right: 10px; }
 
-    .side-panel ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 0.85rem;
-    }
-
-    .side-panel li span.label {
+    .menu-title {
+      font-size: 13px;
       font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 14px 6px;
     }
 
-    /* Main shell */
-    main.shell {
+    .menu-divider {
+      height: 1px;
+      margin: 4px 0 6px;
+      background: #f3f4f6;
+    }
+
+    .menu-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 8px 14px;
+      text-align: left;
+      font-size: 14px;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .menu-item small {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-left: auto;
+    }
+
+    .menu-item:hover { background: #f3f4ff; }
+
+    .danger { color: #b91c1c; }
+
+    /* center area */
+    .main {
       flex: 1;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 18px 8px 24px;
-    }
-
-    .chat-card {
-      width: 100%;
-      max-width: 480px;
-      margin-top: 4px;
-      background: #fffdf9;
-      border-radius: 24px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
-      padding: 18px 16px 14px;
-      display: flex;
       flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      text-align: center;
+      padding: 22px 18px 8px;
       gap: 10px;
     }
 
-    .chat-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 4px;
+    .logo-big {
+      font-size: 90px;
+      font-weight: 800;
+      color: #1f3b73;
+      animation: floatInfinity 3s ease-in-out infinite;
+      text-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+      margin-top: 10px;
     }
 
-    .logo-circle {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #112b66;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-size: 1.6rem;
-      box-shadow: 0 10px 26px rgba(17, 43, 102, 0.55);
+    @keyframes floatInfinity {
+      0%   { transform: translateY(0); }
+      50%  { transform: translateY(-12px); }
+      100% { transform: translateY(0); }
     }
 
-    .bot-name {
+    .hello {
+      font-size: 22px;
       font-weight: 700;
-      font-size: 1rem;
     }
 
-    .bot-sub {
-      font-size: 0.8rem;
-      color: #6b7280;
+    .hello span {
+      background: #e5edff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: #1f3b73;
     }
 
-    .accent {
-      color: #1453c2;
+    .sub {
+      font-size: 14px;
+      color: #4b5563;
+      max-width: 260px;
     }
 
+    /* CHAT AREA (inside center) */
     .chat-area {
-      background: #f5f0e9;
-      border-radius: 18px;
-      padding: 10px 10px 12px;
-      height: 320px;
+      margin-top: 16px;
+      width: 100%;
+      max-height: 260px;
       overflow-y: auto;
+      padding: 0 4px 4px;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
     .bubble {
-      padding: 8px 11px;
-      border-radius: 16px;
-      max-width: 88%;
-      font-size: 0.86rem;
-      line-height: 1.35;
-      word-wrap: break-word;
-      white-space: pre-wrap;
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 18px;
+      font-size: 14px;
+      max-width: 85%;
+      text-align: left;
+      box-shadow: 0 2px 6px rgba(15,23,42,0.06);
     }
 
     .bubble.bot {
-      background: #ffffff;
       align-self: flex-start;
-      border-bottom-left-radius: 4px;
+      background: #ffffff;
     }
 
     .bubble.user {
-      background: #1453c2;
-      color: #ffffff;
       align-self: flex-end;
-      border-bottom-right-radius: 4px;
+      background: #1f3b73;
+      color: #ffffff;
     }
 
     .typing {
-      font-size: 0.8rem;
-      color: #9ca3af;
-      margin-top: 2px;
-      padding-left: 4px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .input-row {
-      margin-top: 6px;
       display: flex;
       align-items: center;
       gap: 6px;
-      background: #f5f0e9;
-      border-radius: 999px;
-      padding: 4px 6px 4px 6px;
+      margin-top: 4px;
+      justify-content: flex-start;
     }
 
-    .input-row input[type="text"] {
-      flex: 1;
+    .typing-dots {
+      display: flex;
+      gap: 3px;
+    }
+
+    .typing-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #9ca3af;
+      animation: blink 1s infinite;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+      40%          { opacity: 1; transform: translateY(-2px); }
+    }
+
+    .typing.hidden { display: none; }
+
+    /* bottom search bar */
+    .bottombar {
+      padding: 10px 12px 16px;
+      background: #f3e5d6;
+      border-top: 1px solid #e5d4c2;
+    }
+
+    .input-row {
+      background: #ffffff;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      padding: 6px 10px;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.08);
+      gap: 6px;
+    }
+
+    .upload-btn {
       border: none;
       background: transparent;
-      padding: 6px 4px;
-      font-size: 0.9rem;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .input-row input {
+      flex: 1;
+      border: none;
       outline: none;
+      font-size: 14px;
+      background: transparent;
     }
 
     .send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       border: none;
-      background: #112b66;
+      background: #1f3b73;
       color: #ffffff;
-      border-radius: 999px;
-      padding: 8px 11px;
-      font-size: 0.9rem;
+      font-size: 18px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 20px rgba(17, 43, 102, 0.45);
     }
 
-    .send-btn:active {
-      transform: translateY(1px);
-      box-shadow: 0 4px 10px rgba(17, 43, 102, 0.35);
-    }
-
-    .hidden-input {
-      display: none;
-    }
-
-    .helper-text {
+    .hint {
       margin-top: 6px;
-      font-size: 0.72rem;
+      font-size: 11px;
+      color: #6b7280;
       text-align: center;
-      color: #9ca3af;
     }
 
-    /* Mobile tweaks */
-    @media (max-width: 480px) {
-      header.app-bar {
-        padding-inline: 10px;
-      }
-
-      .chat-card {
-        border-radius: 0;
-        max-width: 100%;
-        box-shadow: none;
-      }
-
-      main.shell {
-        padding: 0;
-      }
+    .upload-preview {
+      margin-top: 4px;
+      font-size: 11px;
+      text-align: center;
+      color: #6b7280;
+      word-break: break-all;
     }
   </style>
 </head>
 <body>
-  <!-- Top bar -->
-  <header class="app-bar">
-    <div class="top-left">
-      <button id="studyToggle" class="icon-btn" title="Study, MCQs & history">
-        📘
-      </button>
-      <span class="brand">SALTUS ARMORIS</span>
+  <div class="app">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="top-left">
+        <button class="icon-btn" title="Study menu" onclick="toggleStudy()">📘</button>
+        <div class="brand-text">SALTUS ARMORIS</div>
+      </div>
+      <button class="icon-btn" title="Settings" onclick="toggleSettings()">⋮</button>
+    </header>
+
+    <!-- STUDY MENU (LEFT) -->
+    <div id="studyMenu" class="study-menu">
+      <div class="menu-title">Study</div>
+      <div class="menu-divider"></div>
+      <button class="menu-item">📚 What to study <small>plan</small></button>
+      <button class="menu-item">❓ MCQs <small>practice</small></button>
+      <button class="menu-item">🕒 History <small>recent</small></button>
     </div>
 
-    <button id="settingsBtn" class="icon-btn" title="Settings">
-      ⋮
-    </button>
-  </header>
+    <!-- SETTINGS MENU (RIGHT) -->
+    <div id="settingsMenu" class="settings-menu">
+      <div class="menu-title">Settings</div>
+      <div class="menu-divider"></div>
+      <button class="menu-item">👤 Profile <small>soon</small></button>
+      <button class="menu-item">🎨 Theme <small>coming</small></button>
+      <button class="menu-item">ℹ️ About MEBI <small>info</small></button>
+      <div class="menu-divider"></div>
+      <button class="menu-item danger">🧹 Clear chat <small>coming</small></button>
+    </div>
 
-  <!-- Left study panel -->
-  <aside id="studyMenu" class="side-panel">
-    <h3>Study modes</h3>
-    <ul>
-      <li><span class="label">Study</span> – notes & concepts</li>
-      <li><span class="label">MCQs</span> – practice questions</li>
-      <li><span class="label">History</span> – past chats (coming soon)</li>
-    </ul>
-  </aside>
+    <!-- CENTER -->
+    <main class="main">
+      <div class="logo-big">∞</div>
+      <div class="hello">Hi, I'm <span>MEBI</span> 👋</div>
+      <div class="sub">How can I help you today?</div>
 
-  <!-- Main chat shell -->
-  <main class="shell">
-    <div class="chat-card">
-      <div class="chat-header">
-        <div class="logo-circle">∞</div>
-        <div>
-          <div class="bot-name">
-            Hi, I'm <span class="accent">MEBI</span> 👋
-          </div>
-          <div class="bot-sub">How can I help you today?</div>
-        </div>
-      </div>
-
+      <!-- CHAT AREA -->
       <div id="chatArea" class="chat-area">
         <div class="bubble bot">
-          I'm MEBI, your study buddy. Ask doubts, request MCQs, or send images –
-          brain coming soon!
+          I’m MEBI, your study buddy. Ask doubts, request MCQs, or send images – brain coming soon!
         </div>
       </div>
 
+      <!-- TYPING INDICATOR -->
       <div id="typing" class="typing hidden">
-        MEBI is thinking…
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <small>MEBI is thinking…</small>
       </div>
+    </main>
 
-      <form id="chatForm" class="input-row">
-        <button
-          type="button"
-          id="uploadBtn"
-          class="icon-btn small"
-          title="Upload question image"
-        >
-          📄
-        </button>
-        <input
-          type="file"
-          id="fileInput"
-          class="hidden-input"
-          accept="image/*"
-        />
-        <input
-          id="userInput"
-          type="text"
-          autocomplete="off"
-          placeholder="Type your question here..."
-        />
-        <button type="submit" class="send-btn">➤</button>
-      </form>
-
-      <div class="helper-text">
-        UI only now – study, MCQs & history will work after we connect the AI
-        brain.
+    <!-- BOTTOM SEARCH BAR -->
+    <footer class="bottombar">
+      <div class="input-row">
+        <button class="upload-btn" title="Upload / copy file" onclick="triggerFile()">📄</button>
+        <input id="userInput" type="text" placeholder="Type your question here..." />
+        <button class="send-btn" onclick="sendMessage()">➤</button>
       </div>
-    </div>
-  </main>
+      <p class="hint">UI only now – study, MCQs & history will work after we connect the AI brain.</p>
+      <div id="uploadPreview" class="upload-preview"></div>
+      <input id="fileInput" type="file" style="display:none" onchange="showFile()" />
+    </footer>
+  </div>
 
   <script>
-    // ====== UI controls ======
-    const studyToggle = document.getElementById("studyToggle");
-    const studyMenu = document.getElementById("studyMenu");
+    function toggleStudy() {
+      const s = document.getElementById('studyMenu');
+      const t = document.getElementById('settingsMenu');
+      s.classList.toggle('open');
+      t.classList.remove('open');
+    }
 
-    studyToggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      studyMenu.classList.toggle("open");
-    });
+    function toggleSettings() {
+      const s = document.getElementById('settingsMenu');
+      const t = document.getElementById('studyMenu');
+      s.classList.toggle('open');
+      t.classList.remove('open');
+    }
 
-    document.addEventListener("click", (e) => {
-      if (!studyMenu.contains(e.target) && e.target !== studyToggle) {
-        studyMenu.classList.remove("open");
+    // close menus when clicking outside
+    document.addEventListener('click', function(e) {
+      const study = document.getElementById('studyMenu');
+      const settings = document.getElementById('settingsMenu');
+      const studyBtn = document.querySelector('.top-left .icon-btn');
+      const settingsBtn = document.querySelector('header .icon-btn[title="Settings"]');
+
+      if (!study.contains(e.target) && !studyBtn.contains(e.target) &&
+          !settings.contains(e.target) && !settingsBtn.contains(e.target)) {
+        study.classList.remove('open');
+        settings.classList.remove('open');
       }
     });
 
-    const uploadBtn = document.getElementById("uploadBtn");
-    const fileInput = document.getElementById("fileInput");
-
-    uploadBtn.addEventListener("click", () => fileInput.click());
-
-    // ====== Chat logic ======
-    const chatForm = document.getElementById("chatForm");
-    const userInput = document.getElementById("userInput");
-    const chatArea = document.getElementById("chatArea");
-    const typing = document.getElementById("typing");
-
-    function addBubble(text, who) {
-      const div = document.createElement("div");
-      div.className = "bubble " + (who === "user" ? "user" : "bot");
-      div.textContent = text;
-      chatArea.appendChild(div);
-      chatArea.scrollTop = chatArea.scrollHeight;
+    // Upload preview
+    function triggerFile() {
+      document.getElementById('fileInput').click();
     }
 
-    chatForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const text = userInput.value.trim();
+    function showFile() {
+      const input = document.getElementById('fileInput');
+      const preview = document.getElementById('uploadPreview');
+      if (input.files && input.files[0]) {
+        preview.textContent = "Selected: " + input.files[0].name;
+      } else {
+        preview.textContent = "";
+      }
+    }
+
+    // Simple front-end chat demo
+    function sendMessage() {
+      const input = document.getElementById('userInput');
+      const text = input.value.trim();
       if (!text) return;
 
-      addBubble(text, "user");
-      userInput.value = "";
+      const chat = document.getElementById('chatArea');
+      const typing = document.getElementById('typing');
 
-      typing.classList.remove("hidden");
+      // user bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = 'bubble user';
+      userBubble.textContent = text;
+      chat.appendChild(userBubble);
+      chat.scrollTop = chat.scrollHeight;
 
-      let reply;
-      try {
-        reply = await askMebi(text);
-      } catch (err) {
-        reply = "Sorry, something went wrong. Please try again.";
-      }
+      input.value = '';
 
-      typing.classList.add("hidden");
-      addBubble(reply, "bot");
-    });
+      // show typing dots
+      typing.classList.remove('hidden');
 
-    async function askMebi(question) {
-      const response = await fetch("/api/ask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ question }),
-      });
-
-      const data = await response.json();
-      return data.reply || "Sorry, something went wrong!";
+      // fake MEBI reply after 1 sec
+      setTimeout(() => {
+        typing.classList.add('hidden');
+        const botBubble = document.createElement('div');
+        botBubble.className = 'bubble bot';
+        botBubble.textContent = "MEBI (demo): I received – “" + text + "”. Real AI brain coming soon!";
+        chat.appendChild(botBubble);
+        chat.scrollTop = chat.scrollHeight;
+      }, 1000);
     }
+
+    // Allow Enter key to send
+    document.getElementById('userInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>
