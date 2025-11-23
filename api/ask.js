@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   const { question } = req.body;
-  const apiKey = process.env.GEMINI_KEY;  // 👈 from Vercel env (NO key in code)
+  const apiKey = process.env.GEMINI_API_KEY;  // 👈 from Vercel env (NO key in code)
 
   if (!apiKey) {
     return res.status(500).json({ reply: 'Server API key missing' });
