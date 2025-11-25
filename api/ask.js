@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ reply: "Server API key missing" });
   }
 
-  const model = "gemini-1.5-flash-latest";
+  const model = "gemini-pro";
   const url =
     "https://generativelanguage.googleapis.com/v1beta/models/" +
     model +
