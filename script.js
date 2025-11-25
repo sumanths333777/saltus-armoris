@@ -19,7 +19,7 @@ async function sendMessage() {
   typing.classList.remove('hidden');
 
   try {
-    // call our backend on Vercel
+    // call backend
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -27,10 +27,7 @@ async function sendMessage() {
     });
 
     const data = await response.json();
-    const replyText = data.reply || "MEBI: Something went wrong, try again.";
-
-    typing.classList.add('hidden');
-
+    
     // bot bubble
     const botBubble = document.createElement('div');
     botBubble.className = 'bubble bot';
