@@ -26,12 +26,14 @@ async function sendMessage() {
   });
 const data = await response.json();
 console.log("AI:", data);
-    
-  const botBubble = document.createElement('div');
-  botBubble.className = 'bubble bot';
-  botBubble.textContent = replyText;
-  chat.appendChild(botBubble);
-  chat.scrollTop = chat.scrollHeight;
+
+const replyText = data.reply || "Sorry, I couldn't understand.";
+
+const botBubble = document.createElement('div');
+botBubble.className = 'bubble bot';
+botBubble.textContent = replyText;
+chat.appendChild(botBubble);
+chat.scrollTop = chat.scrollHeight;
 
 } catch (err) {
   console.error(err);
