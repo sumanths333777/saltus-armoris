@@ -448,11 +448,12 @@
       // fake MEBI reply after 1 sec
       setTimeout(() => {
         typing.classList.add('hidden');
-        const botBubble = document.createElement('div');
-        botBubble.className = 'bubble bot';
-        botBubble.textContent = "MEBI (demo): I received – “" + text + "”. Real AI brain coming soon!";
-        chat.appendChild(botBubble);
-        chat.scrollTop = chat.scrollHeight;
+  // bot bubble
+const botBubble = document.createElement('div');
+botBubble.className = 'bubble bot';
+botBubble.textContent = replyText;
+chat.appendChild(botBubble);
+chat.scrollTop = chat.scrollHeight;
       }, 1000);
     }
 
@@ -466,4 +467,5 @@
   </script>
 </body>
 </html>
+
 
