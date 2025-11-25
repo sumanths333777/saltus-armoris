@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const question = body.question || "";
 
-  // get Gemini API key from env
+  // get Gemini API key from env (Vercel settings)
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     res.status(500).json({ reply: "Server API key missing" });
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     const data = await geminiRes.json();
 
-    // safely pick reply text
+    // safely read reply text
     let reply = "Sorry, I couldn't generate an answer.";
     if (
       data &&
