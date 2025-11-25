@@ -1,18 +1,24 @@
 export default async function handler(req, res) {
+  // allow only POST
   if (req.method !== "POST") {
-    return res.status(405).json({ reply: "Method not allowed" });
+    res.status(405).json({ reply: "Method not allowed" });
+    return;
   }
 
-  const { question } = req.body;
+  // get question text from body
+  const body = req.body || {};
+  const question = body.question || "";
 
+  // get Gemini API key from env
   const apiKey = process.env.GEMINI_API_KEY;
-
   if (!apiKey) {
-    return res.status(500).json({ reply: "Server API key missing" });
+    res.status(500).json({ reply: "Server API key missing" });
+    return;
   }
 
   try {
-    const response = await fetch(
+    // call Gemini API
+    const geminiRes = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
         apiKey,
       {
@@ -32,15 +38,25 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json();
+    const data = await geminiRes.json();
 
-    const reply =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sorry, I couldn’t generate an answer.";
+    // safely pick reply text
+    let reply = "Sorry, I couldn't generate an answer.";
+    if (
+      data &&
+      data.candidates &&
+      data.candidates[0] &&
+      data.candidates[0].content &&
+      data.candidates[0].content.parts &&
+      data.candidates[0].content.parts[0] &&
+      data.candidates[0].content.parts[0].text
+    ) {
+      reply = data.candidates[0].content.parts[0].text;
+    }
 
-    return res.status(200).json({ reply });
+    res.status(200).json({ reply });
   } catch (err) {
     console.error("Gemini API error:", err);
-    return res.status(500).json({ reply: "Error talking to AI." });
+    res.status(500).json({ reply: "Error talking to AI." });
   }
 }
