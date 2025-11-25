@@ -30,7 +30,6 @@
       position: relative;
     }
 
-    /* wider card on laptop */
     @media (min-width: 900px) {
       body { align-items: center; }
       .app {
@@ -42,7 +41,6 @@
       }
     }
 
-    /* top bar */
     .topbar {
       height: 56px;
       display: flex;
@@ -79,7 +77,6 @@
       text-transform: uppercase;
     }
 
-    /* STUDY + SETTINGS MENUS */
     .study-menu,
     .settings-menu {
       position: absolute;
@@ -145,7 +142,6 @@
 
     .danger { color: #b91c1c; }
 
-    /* center area */
     .main {
       flex: 1;
       display: flex;
@@ -190,7 +186,6 @@
       max-width: 260px;
     }
 
-    /* CHAT AREA (inside center) */
     .chat-area {
       margin-top: 16px;
       width: 100%;
@@ -254,7 +249,6 @@
 
     .typing.hidden { display: none; }
 
-    /* bottom search bar */
     .bottombar {
       padding: 10px 12px 16px;
       background: #f3e5d6;
@@ -352,7 +346,7 @@
       <div class="sub">How can I help you today?</div>
 
       <!-- CHAT AREA -->
-      <div id="chatArea" class="chat-area">
+      <div id="chat" class="chat-area">
         <div class="bubble bot">
           I’m MEBI, your study buddy. Ask doubts, request MCQs, or send images – brain coming soon!
         </div>
@@ -371,7 +365,8 @@
     <footer class="bottombar">
       <div class="input-row">
         <button class="upload-btn" title="Upload / copy file" onclick="triggerFile()">📄</button>
-        <input id="userInput" type="text" placeholder="Type your question here..." />
+        <!-- NOTE: id must be user-input to match script.js -->
+        <input id="user-input" type="text" placeholder="Type your question here..." />
         <button class="send-btn" onclick="sendMessage()">➤</button>
       </div>
       <p class="hint">UI only now – study, MCQs & history will work after we connect the AI brain.</p>
@@ -380,6 +375,7 @@
     </footer>
   </div>
 
+  <!-- UI / menu helpers -->
   <script>
     function toggleStudy() {
       const s = document.getElementById('studyMenu');
@@ -424,48 +420,21 @@
       }
     }
 
-    // Simple front-end chat demo
-    function sendMessage() {
-      const input = document.getElementById('userInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      const chat = document.getElementById('chatArea');
-      const typing = document.getElementById('typing');
-
-      // user bubble
-      const userBubble = document.createElement('div');
-      userBubble.className = 'bubble user';
-      userBubble.textContent = text;
-      chat.appendChild(userBubble);
-      chat.scrollTop = chat.scrollHeight;
-
-      input.value = '';
-
-      // show typing dots
-      typing.classList.remove('hidden');
-
-      // fake MEBI reply after 1 sec
-      setTimeout(() => {
-        typing.classList.add('hidden');
-  // bot bubble
-const botBubble = document.createElement('div');
-botBubble.className = 'bubble bot';
-botBubble.textContent = replyText;
-chat.appendChild(botBubble);
-chat.scrollTop = chat.scrollHeight;
-      }, 1000);
-    }
-
-    // Allow Enter key to send
-    document.getElementById('userInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
+    // Enter key sends using sendMessage() from script.js
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('user-input');
+      if (input) {
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
       }
     });
   </script>
+
+  <!-- REAL CHAT LOGIC (fetches Gemini via /api/ask) -->
+  <script src="script.js"></script>
 </body>
 </html>
-
-
