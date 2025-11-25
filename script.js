@@ -23,7 +23,7 @@ async function sendMessage() {
     const response = await fetch('/api/ask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ question: text })
     });
 
     const data = await response.json();
