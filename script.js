@@ -1,6 +1,8 @@
+// SALTUS ARMORIS – MEBI chat frontend
+
 async function sendMessage() {
   const input = document.getElementById('user-input');
-  const text = input.value.trim();
+  const text = (input.value || '').trim();
   if (!text) return;
 
   const chat = document.getElementById('chat');
@@ -13,34 +15,56 @@ async function sendMessage() {
   chat.appendChild(userBubble);
   chat.scrollTop = chat.scrollHeight;
 
+  // clear box
   input.value = '';
 
-  // show typing dots
-  typing.classList.remove('hidden');
+  // show typing dots (if element exists)
+  if (typing) typing.classList.remove('hidden');
 
   try {
-  const response = await fetch('/api/ask', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question: text })
-  });
-const data = await response.json();
-console.log("AI:", data);
+    // call backend
+    const response = await fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: text })
+    });
 
-const replyText = data.reply || "Sorry, I couldn't understand.";
+    const data = await response.json();
+    console.log("AI:", data);
 
-const botBubble = document.createElement('div');
-botBubble.className = 'bubble bot';
-botBubble.textContent = replyText;
-chat.appendChild(botBubble);
-chat.scrollTop = chat.scrollHeight;
+    const replyText = data.reply || "Sorry, I couldn't understand.";
 
-} catch (err) {
-  console.error(err);
+    // hide typing
+    if (typing) typing.classList.add('hidden');
 
-  const botBubble = document.createElement('div');
-  botBubble.className = 'bubble bot';
-  botBubble.textContent = 'MEBI: Network error. Please try again.';
-  chat.appendChild(botBubble);
-  chat.scrollTop = chat.scrollHeight;
+    // bot bubble
+    const botBubble = document.createElement('div');
+    botBubble.className = 'bubble bot';
+    botBubble.textContent = replyText;
+    chat.appendChild(botBubble);
+    chat.scrollTop = chat.scrollHeight;
+
+  } catch (err) {
+    console.error(err);
+
+    if (typing) typing.classList.add('hidden');
+
+    const botBubble = document.createElement('div');
+    botBubble.className = 'bubble bot';
+    botBubble.textContent = 'MEBI: Network error. Please try again.';
+    chat.appendChild(botBubble);
+    chat.scrollTop = chat.scrollHeight;
+  }
 }
+
+// optional: send on Enter key
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('user-input');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  }
+});
