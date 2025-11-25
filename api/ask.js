@@ -22,7 +22,7 @@ export default async function handler(req, res) {
             {
               parts: [
                 {
-                  text: question || "Hello"
+                  text: question || "Hello!"
                 }
               ]
             }
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
     const reply =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sorry, I couldn't generate an answer.";
+      "MEBI couldn't understand. Try again!";
 
     return res.status(200).json({ reply });
 
