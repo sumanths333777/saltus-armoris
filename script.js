@@ -19,7 +19,6 @@ async function sendMessage() {
   typing.classList.remove('hidden');
 
   try {
-  // call backend
   const response = await fetch('/api/ask', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -27,9 +26,8 @@ async function sendMessage() {
   });
 
   const data = await response.json();
-  const replyText = data.reply || "Sorry, I couldn't understand.";
+  const replyText = data.reply || "Sorry, I couldn\'t understand.";
 
-  // bot bubble
   const botBubble = document.createElement('div');
   botBubble.className = 'bubble bot';
   botBubble.textContent = replyText;
@@ -38,7 +36,6 @@ async function sendMessage() {
 
 } catch (err) {
   console.error(err);
-  typing.classList.add('hidden');
 
   const botBubble = document.createElement('div');
   botBubble.className = 'bubble bot';
