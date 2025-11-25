@@ -24,10 +24,9 @@ async function sendMessage() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ question: text })
   });
-
-  const data = await response.json();
-  const replyText = data.reply || "Sorry, I couldn\'t understand.";
-
+const data = await response.json();
+console.log("AI:", data);
+    
   const botBubble = document.createElement('div');
   botBubble.className = 'bubble bot';
   botBubble.textContent = replyText;
