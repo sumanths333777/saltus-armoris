@@ -1,440 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>SALTUS ARMORIS – MEBI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ reply: "Method not allowed" });
+  }
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  const body = req.body || {};
+  const question = body.question || "";
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      background: #f8f1e8;           /* creamy */
-      color: #111827;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-    }
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ reply: "Server API key missing" });
+  }
 
-    .app {
-      width: 100%;
-      max-width: 480px;
-      min-height: 100vh;
-      background: #fdf7f0;
-      border-left: 1px solid #e5d4c2;
-      border-right: 1px solid #e5d4c2;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    @media (min-width: 900px) {
-      body { align-items: center; }
-      .app {
-        max-width: 780px;
-        min-height: 90vh;
-        margin: 24px auto;
-        border-radius: 20px;
-        box-shadow: 0 14px 40px rgba(15, 23, 42, 0.18);
+  try {
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + apiKey,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: question }]
+            }
+          ]
+        })
       }
+    );
+
+    const data = await response.json();
+
+    let reply = "Sorry, I couldn't generate an answer.";
+    if (
+      data.candidates &&
+      data.candidates[0] &&
+      data.candidates[0].content &&
+      data.candidates[0].content.parts &&
+      data.candidates[0].content.parts[0] &&
+      data.candidates[0].content.parts[0].text
+    ) {
+      reply = data.candidates[0].content.parts[0].text;
     }
 
-    .topbar {
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
-      border-bottom: 1px solid #e5d4c2;
-      background: rgba(248,241,232,0.9);
-      backdrop-filter: blur(8px);
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-
-    .top-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      border: none;
-      background: transparent;
-      font-size: 22px;
-      cursor: pointer;
-      padding: 4px;
-      line-height: 1;
-    }
-
-    .brand-text {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .study-menu,
-    .settings-menu {
-      position: absolute;
-      top: 56px;
-      width: 210px;
-      background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 14px 30px rgba(15,23,42,0.22);
-      padding: 8px 0;
-      opacity: 0;
-      transform: translateY(-8px);
-      pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
-      z-index: 30;
-    }
-
-    .study-menu.open,
-    .settings-menu.open {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .study-menu { left: 10px; }
-    .settings-menu { right: 10px; }
-
-    .menu-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 2px 14px 6px;
-    }
-
-    .menu-divider {
-      height: 1px;
-      margin: 4px 0 6px;
-      background: #f3f4f6;
-    }
-
-    .menu-item {
-      width: 100%;
-      border: none;
-      background: transparent;
-      padding: 8px 14px;
-      text-align: left;
-      font-size: 14px;
-      color: #111827;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-
-    .menu-item small {
-      font-size: 11px;
-      color: #9ca3af;
-      margin-left: auto;
-    }
-
-    .menu-item:hover { background: #f3f4ff; }
-
-    .danger { color: #b91c1c; }
-
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      text-align: center;
-      padding: 22px 18px 8px;
-      gap: 10px;
-    }
-
-    .logo-big {
-      font-size: 90px;
-      font-weight: 800;
-      color: #1f3b73;
-      animation: floatInfinity 3s ease-in-out infinite;
-      text-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
-      margin-top: 10px;
-    }
-
-    @keyframes floatInfinity {
-      0%   { transform: translateY(0); }
-      50%  { transform: translateY(-12px); }
-      100% { transform: translateY(0); }
-    }
-
-    .hello {
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .hello span {
-      background: #e5edff;
-      padding: 2px 6px;
-      border-radius: 6px;
-      color: #1f3b73;
-    }
-
-    .sub {
-      font-size: 14px;
-      color: #4b5563;
-      max-width: 260px;
-    }
-
-    .chat-area {
-      margin-top: 16px;
-      width: 100%;
-      max-height: 260px;
-      overflow-y: auto;
-      padding: 0 4px 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .bubble {
-      display: inline-block;
-      padding: 8px 12px;
-      border-radius: 18px;
-      font-size: 14px;
-      max-width: 85%;
-      text-align: left;
-      box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-    }
-
-    .bubble.bot {
-      align-self: flex-start;
-      background: #ffffff;
-    }
-
-    .bubble.user {
-      align-self: flex-end;
-      background: #1f3b73;
-      color: #ffffff;
-    }
-
-    .typing {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 4px;
-      justify-content: flex-start;
-    }
-
-    .typing-dots {
-      display: flex;
-      gap: 3px;
-    }
-
-    .typing-dots span {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #9ca3af;
-      animation: blink 1s infinite;
-    }
-
-    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
-
-    @keyframes blink {
-      0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
-      40%          { opacity: 1; transform: translateY(-2px); }
-    }
-
-    .typing.hidden { display: none; }
-
-    .bottombar {
-      padding: 10px 12px 16px;
-      background: #f3e5d6;
-      border-top: 1px solid #e5d4c2;
-    }
-
-    .input-row {
-      background: #ffffff;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      padding: 6px 10px;
-      box-shadow: 0 4px 10px rgba(15,23,42,0.08);
-      gap: 6px;
-    }
-
-    .upload-btn {
-      border: none;
-      background: transparent;
-      font-size: 18px;
-      cursor: pointer;
-      padding: 4px;
-    }
-
-    .input-row input {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-size: 14px;
-      background: transparent;
-    }
-
-    .send-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: none;
-      background: #1f3b73;
-      color: #ffffff;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .hint {
-      margin-top: 6px;
-      font-size: 11px;
-      color: #6b7280;
-      text-align: center;
-    }
-
-    .upload-preview {
-      margin-top: 4px;
-      font-size: 11px;
-      text-align: center;
-      color: #6b7280;
-      word-break: break-all;
-    }
-  </style>
-</head>
-<body>
-  <div class="app">
-    <!-- TOP BAR -->
-    <header class="topbar">
-      <div class="top-left">
-        <button class="icon-btn" title="Study menu" onclick="toggleStudy()">📘</button>
-        <div class="brand-text">SALTUS ARMORIS</div>
-      </div>
-      <button class="icon-btn" title="Settings" onclick="toggleSettings()">⋮</button>
-    </header>
-
-    <!-- STUDY MENU (LEFT) -->
-    <div id="studyMenu" class="study-menu">
-      <div class="menu-title">Study</div>
-      <div class="menu-divider"></div>
-      <button class="menu-item">📚 study plan <small>plan</small></button>
-      <button class="menu-item">❓ MCQs <small>practice</small></button>
-      <button class="menu-item">🕒 History <small>recent</small></button>
-    </div>
-
-    <!-- SETTINGS MENU (RIGHT) -->
-    <div id="settingsMenu" class="settings-menu">
-      <div class="menu-title">Settings</div>
-      <div class="menu-divider"></div>
-      <button class="menu-item">👤 Profile <small>soon</small></button>
-      <button class="menu-item">🎨 Theme <small>coming</small></button>
-      <button class="menu-item">ℹ️ About MEBI <small>info</small></button>
-      <div class="menu-divider"></div>
-      <button class="menu-item danger">🧹 Clear chat <small>coming</small></button>
-    </div>
-
-    <!-- CENTER -->
-    <main class="main">
-      <div class="logo-big">∞</div>
-      <div class="hello">Hi, I'm <span>MEBI</span> 👋</div>
-      <div class="sub">How can I help you today?</div>
-
-      <!-- CHAT AREA -->
-      <div id="chat" class="chat-area">
-        <div class="bubble bot">
-          I’m MEBI, your study buddy. Ask doubts, request MCQs, or send images – brain coming soon!
-        </div>
-      </div>
-
-      <!-- TYPING INDICATOR -->
-      <div id="typing" class="typing hidden">
-        <div class="typing-dots">
-          <span></span><span></span><span></span>
-        </div>
-        <small>MEBI is thinking…</small>
-      </div>
-    </main>
-
-    <!-- BOTTOM SEARCH BAR -->
-    <footer class="bottombar">
-      <div class="input-row">
-        <button class="upload-btn" title="Upload / copy file" onclick="triggerFile()">📄</button>
-        <!-- NOTE: id must be user-input to match script.js -->
-        <input id="user-input" type="text" placeholder="Type your question here..." />
-        <button class="send-btn" onclick="sendMessage()">➤</button>
-      </div>
-      <p class="hint">UI only now – study, MCQs & history will work after we connect the AI brain.</p>
-      <div id="uploadPreview" class="upload-preview"></div>
-      <input id="fileInput" type="file" style="display:none" onchange="showFile()" />
-    </footer>
-  </div>
-
-  <!-- UI / menu helpers -->
-  <script>
-    function toggleStudy() {
-      const s = document.getElementById('studyMenu');
-      const t = document.getElementById('settingsMenu');
-      s.classList.toggle('open');
-      t.classList.remove('open');
-    }
-
-    function toggleSettings() {
-      const s = document.getElementById('settingsMenu');
-      const t = document.getElementById('studyMenu');
-      s.classList.toggle('open');
-      t.classList.remove('open');
-    }
-
-    // close menus when clicking outside
-    document.addEventListener('click', function(e) {
-      const study = document.getElementById('studyMenu');
-      const settings = document.getElementById('settingsMenu');
-      const studyBtn = document.querySelector('.top-left .icon-btn');
-      const settingsBtn = document.querySelector('header .icon-btn[title="Settings"]');
-
-      if (!study.contains(e.target) && !studyBtn.contains(e.target) &&
-          !settings.contains(e.target) && !settingsBtn.contains(e.target)) {
-        study.classList.remove('open');
-        settings.classList.remove('open');
-      }
-    });
-
-    // Upload preview
-    function triggerFile() {
-      document.getElementById('fileInput').click();
-    }
-
-    function showFile() {
-      const input = document.getElementById('fileInput');
-      const preview = document.getElementById('uploadPreview');
-      if (input.files && input.files[0]) {
-        preview.textContent = "Selected: " + input.files[0].name;
-      } else {
-        preview.textContent = "";
-      }
-    }
-
-    // Enter key sends using sendMessage() from script.js
-    document.addEventListener('DOMContentLoaded', () => {
-      const input = document.getElementById('user-input');
-      if (input) {
-        input.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
-          }
-        });
-      }
-    });
-  </script>
-
-  <!-- REAL CHAT LOGIC (fetches Gemini via /api/ask) -->
-  <script src="script.js"></script>
-</body>
-</html>
+    return res.status(200).json({ reply });
+  } catch (err) {
+    console.error("Gemini API error:", err);
+    return res.status(500).json({ reply: "Error talking to AI." });
+  }
+}
