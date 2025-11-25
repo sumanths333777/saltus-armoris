@@ -36,8 +36,6 @@ Rules:
 - For general questions: respond friendly and clear.
 
 Student asked: ${question}
-`
-}]
     });
 
     const data = await response.json();
