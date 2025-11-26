@@ -404,14 +404,23 @@
     </main>
 
     <!-- BOTTOM SEARCH BAR -->
-    <footer class="bottombar">
-      <div class="input-row">
-        <button class="upload-btn" title="Upload / copy file" onclick="triggerFile()">📄</button>
-        <!-- NOTE: id must be user-input to match script.js -->
-        <input id="user-input" type="text" placeholder="Type your question here..." />
-        
-    </footer>
+<footer class="bottombar">
+  <div class="input-row">
+
+    <!-- Upload button -->
+    <button class="upload-btn" title="Upload" onclick="document.getElementById('fileInput').click()">📷</button>
+
+    <!-- Hidden file input -->
+    <input id="fileInput" type="file" accept="image/*" style="display:none">
+
+    <!-- Text box -->
+    <input id="user-input" type="text" placeholder="Type your question here..." />
+
+    <!-- Send button (THIS is your arrow) -->
+    <button class="send-btn" onclick="sendMessage()">➤</button>
+
   </div>
+</footer>
 
   <!-- UI / menu helpers -->
   <script>
@@ -492,6 +501,7 @@
 
 </body>
 </html>
+
 
 
 
