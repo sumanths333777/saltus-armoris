@@ -307,6 +307,47 @@
       word-break: break-all;
     }
     
+    /* ABOUT MEBI POPUP */
+.about-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.about-card {
+  background: #fffaf3;
+  padding: 18px 20px;
+  border-radius: 16px;
+  max-width: 320px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  text-align: center;
+}
+
+.about-card h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.about-card p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.about-close-btn {
+  margin-top: 12px;
+  background: #1f73ff;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+}
   </style>
 </head>
 <body>
@@ -335,8 +376,7 @@
       <div class="menu-divider"></div>
       <button class="menu-item">👤 Profile <small>soon</small></button>
       <button class="menu-item">🎨 Theme <small>coming</small></button>
-      <button class="menu-item" id="darkModeToggleBtn"> Dark Mode </button>
-      <button class="menu-item">ℹ️ About MEBI <small>info</small></button>
+     <button class="menu-item" id="aboutMebiBtn"> About MEBI <small>info</small></button>
       <div class="menu-divider"></div>
       <button class="menu-item danger">🧹 Clear chat <small>coming</small></button>
     </div>
@@ -438,8 +478,23 @@
 
   <!-- REAL CHAT LOGIC (fetches Gemini via /api/ask) -->
   <script src="script.js"></script>
+  <!-- ABOUT MEBI POPUP -->
+<div id="aboutMebiModal" class="about-modal">
+  <div class="about-card">
+    <h2>SANITUS MELETE – MEBI</h2>
+    <p>MEBI is your study buddy for NEET, ECET and other exams.</p>
+    <p>Ask doubts, request MCQs, or send images for help.</p>
+    <p style="font-size: 12px; opacity: 0.8;">
+      Built by SK + Drago ♾️
+    </p>
+    <button class="about-close-btn" onclick="closeAboutMebi()">Close</button>
+  </div>
+</div>
+
+  
 </body>
 </html>
+
 
 
 
