@@ -69,18 +69,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ABOUT MEBI POPUP
-const aboutBtn = document.getElementById("aboutMebiBtn");
-const aboutModal = document.getElementById("aboutMebiModal");
+// ABOUT MEBI POPUP LOGIC
+document.addEventListener("DOMContentLoaded", () => {
+  const aboutBtn = document.getElementById("aboutMebiBtn");
+  const aboutModal = document.getElementById("aboutMebiModal");
+  const closeBtn = aboutModal ? aboutModal.querySelector(".about-close-btn") : null;
 
-if (aboutBtn && aboutModal) {
-  aboutBtn.onclick = () => {
-    aboutModal.style.display = "flex";
-  };
-}
-
-function closeAboutMebi() {
-  if (aboutModal) {
-    aboutModal.style.display = "none";
+  if (aboutBtn && aboutModal) {
+    aboutBtn.addEventListener("click", () => {
+      aboutModal.style.display = "flex";
+    });
   }
-}
+
+  if (closeBtn && aboutModal) {
+    closeBtn.addEventListener("click", () => {
+      aboutModal.style.display = "none";
+    });
+  }
+});
