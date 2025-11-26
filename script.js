@@ -68,3 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+// ABOUT MEBI POPUP
+const aboutBtn = document.getElementById("aboutMebiBtn");
+const aboutModal = document.getElementById("aboutMebiModal");
+
+if (aboutBtn && aboutModal) {
+  aboutBtn.onclick = () => {
+    aboutModal.style.display = "flex";
+  };
+}
+
+function closeAboutMebi() {
+  if (aboutModal) {
+    aboutModal.style.display = "none";
+  }
+}
