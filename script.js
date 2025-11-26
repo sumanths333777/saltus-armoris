@@ -23,6 +23,14 @@ function fileToBase64(file) {
 async function sendMessage() {
   const input = document.getElementById("user-input");
   const text = (input?.value || "").trim();
+  function showFile() {
+  const file = document.getElementById('fileInput').files[0];
+  if (!file) return;
+
+  // small camera icon instead of ugly long filename
+  document.getElementById('uploadPreview').innerHTML =
+    `<span style="font-size:12px; opacity:0.6;">📷 Image attached</span>`;
+}
 
   // if no text and no image, do nothing
   if (!text && !selectedImageFile) return;
