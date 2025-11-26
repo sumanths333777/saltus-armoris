@@ -409,11 +409,8 @@
         <button class="upload-btn" title="Upload / copy file" onclick="triggerFile()">📄</button>
         <!-- NOTE: id must be user-input to match script.js -->
         <input id="user-input" type="text" placeholder="Type your question here..." />
-        <button class="send-btn" onclick="sendMessage()">➤</button>
-      </div>
-      <p class="hint">Powered by SANITUS MELETE AI.</p>
-      <div id="uploadPreview" class="upload-preview"></div>
-      <input id="fileInput" type="file" style="display:none" onchange="showFile()" />
+   <button class="upload-btn" title="Upload" onclick="document.getElementById('fileInput').click()">📷</button>
+<input id="fileInput" type="file" accept="image/*" style="display:none">onchange="showFile()" />
     </footer>
   </div>
 
@@ -456,7 +453,7 @@
       const input = document.getElementById('fileInput');
       const preview = document.getElementById('uploadPreview');
       if (input.files && input.files[0]) {
-        preview.textContent = "Selected: " + input.files[0].name;
+        
       } else {
         preview.textContent = "";
       }
@@ -496,6 +493,7 @@
 
 </body>
 </html>
+
 
 
 
