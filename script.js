@@ -23,14 +23,6 @@ function fileToBase64(file) {
 async function sendMessage() {
   const input = document.getElementById("user-input");
   const text = (input?.value || "").trim();
-  function showFile() {
-  const file = document.getElementById('fileInput').files[0];
-  if (!file) return;
-
-  // small camera icon instead of ugly long filename
-  document.getElementById('uploadPreview').innerHTML =
-    `<span style="font-size:12px; opacity:0.6;">📷 Image attached</span>`;
-}
 
   // if no text and no image, do nothing
   if (!text && !selectedImageFile) return;
@@ -96,7 +88,6 @@ async function sendMessage() {
 
     if (typing) typing.classList.add("hidden");
 
-    const chat = document.getElementById("chat");
     const botBubble = document.createElement("div");
     botBubble.className = "bubble bot";
     botBubble.textContent = "MEBI: Network error. Please try again.";
@@ -105,9 +96,12 @@ async function sendMessage() {
   } finally {
     // after sending, clear the selected image
     selectedImageFile = null;
-    // if you have any preview element, you can clear it here too
-    // e.g. document.getElementById("image-preview").src = "";
   }
+}
+
+// 🔹 NO PREVIEW – this does nothing (but HTML can still call showFile())
+function showFile() {
+  return;
 }
 
 // 🔹 DOM ready things
@@ -123,8 +117,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 🔹 file input – capture the selected image for OCR
-  // 👉 IMPORTANT: change "image-upload" to your actual input id if different
+  // Your HTML uses id="fileInput", so we check that first
   const fileInput =
+    document.getElementById("fileInput") ||
     document.getElementById("image-upload") ||
     document.querySelector('input[type="file"]');
 
@@ -132,14 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
     fileInput.addEventListener("change", (e) => {
       const file = e.target.files?.[0] || null;
       selectedImageFile = file;
-
-      // optional: you can also show a small "image attached" indicator
-      // or preview here if you already have that in your HTML.
       console.log("Selected image:", file?.name);
     });
   }
 
-  // ABOUT MEBI POPUP LOGIC (same as before)
+  // ABOUT MEBI POPUP LOGIC
   const aboutBtn = document.getElementById("aboutMebiBtn");
   const aboutModal = document.getElementById("aboutMebiModal");
   const closeBtn = aboutModal
