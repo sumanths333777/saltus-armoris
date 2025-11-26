@@ -418,31 +418,20 @@
   </div>
 
   <!-- UI / menu helpers -->
- <script>
-  function toggleStudy() {
-    const s = document.getElementById("studyMenu");
-    const t = document.getElementById("settingsMenu");
-    if (s) s.classList.toggle("open");
-    if (t) t.classList.remove("open");
-  }
+  <script>
+    function toggleStudy() {
+      const s = document.getElementById('studyMenu');
+      const t = document.getElementById('settingsMenu');
+      s.classList.toggle('open');
+      t.classList.remove('open');
+    }
 
-  function toggleSettings() {
-    const t = document.getElementById("settingsMenu");
-    if (t) t.classList.toggle("open");
-  }
-
-  // open file selector
-  function triggerFile() {
-    const fileInput = document.getElementById("fileInput");
-    if (fileInput) fileInput.click();
-  }
-
-  // NO PREVIEW — fully disabled
-  function showFile() {
-    // Nothing shown anymore
-    return;
-  }
-</script>
+    function toggleSettings() {
+      const s = document.getElementById('settingsMenu');
+      const t = document.getElementById('studyMenu');
+      s.classList.toggle('open');
+      t.classList.remove('open');
+    }
   
     // close menus when clicking outside
     document.addEventListener('click', function(e) {
@@ -507,6 +496,7 @@
 
 </body>
 </html>
+
 
 
 
