@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
 // ABOUT MEBI POPUP
 const aboutBtn = document.getElementById("aboutMebiBtn");
 const aboutModal = document.getElementById("aboutMebiModal");
