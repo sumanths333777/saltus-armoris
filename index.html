@@ -307,34 +307,69 @@
       word-break: break-all;
     }
 
-    /* 🌙 DARK MODE THEME */
+ /* 🌙 PREMIUM DARK MODE (FULL UI) */
 body.dark {
-  background-color: #121212 !important;
-  color: #ffffff !important;
+  background-color: #0f0f0f !important;
+  color: #e8e8e8 !important;
 }
 
+/* Top bar */
 body.dark .topbar {
-  background-color: #1c1c1c !important;
+  background-color: #1b1b1b !important;
+  border-bottom: 1px solid #333 !important;
 }
 
-body.dark .chat-area {
-  background-color: #181818 !important;
+/* Main center box */
+body.dark .main {
+  background-color: #141414 !important;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4) !important;
 }
 
-body.dark .bubble {
-  background-color: #222 !important;
-  color: #fff !important;
+/* Settings menu */
+body.dark .settings-menu {
+  background-color: #1a1a1a !important;
+  border: 1px solid #303030 !important;
 }
 
 body.dark .menu-item {
   background-color: #222 !important;
+  color: #eee !important;
+}
+
+body.dark .menu-item:hover {
+  background-color: #2d2d2d !important;
+}
+
+/* Chat area */
+body.dark .chat-area {
+  background-color: #141414 !important;
+}
+
+/* User & bot bubbles */
+body.dark .bubble {
+  background-color: #1e1e1e !important;
+  color: #ddd !important;
+  border-color: #2b2b2b !important;
+}
+
+/* Input bar */
+body.dark .input-box {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333 !important;
   color: #fff !important;
 }
 
-body.dark .settings-menu {
-  background-color: #1a1a1a !important;
-  border-color: #333 !important;
+body.dark input {
+  background: transparent !important;
+  color: #fff !important;
 }
+
+/* Send button */
+body.dark .send-btn {
+  background: #2d6cdf !important;
+  color: white !important;
+}
+    
   </style>
 </head>
 <body>
@@ -468,6 +503,7 @@ body.dark .settings-menu {
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
