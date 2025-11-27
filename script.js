@@ -1,3 +1,26 @@
+// 🔐 SIMPLE CONTENT FILTER FOR MEBI
+
+const bannedWords = [
+  "sex","porn","nude","xxx","fuck","boobs","dick","pussy","bastard","asshole",
+  "suicide","kill myself","murder","bomb","terrorist"
+];
+
+const bannedTopics = [
+  "how to hack","hack wifi","make bomb","drugs","weed","ganja"
+];
+
+let warningCount = 0;
+const MAX_WARNINGS = 3;
+
+function isBlockedMessage(text) {
+  const lower = text.toLowerCase();
+
+  if (bannedWords.some(w => lower.includes(w))) return true;
+  if (bannedTopics.some(w => lower.includes(w))) return true;
+
+  return false;
+}
+
 // SANITUS MELETE – MEBI chat frontend with image (OCR) support
 
 // 🔹 will store the last selected image file
