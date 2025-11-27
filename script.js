@@ -1,5 +1,4 @@
 // 🔐 SIMPLE CONTENT FILTER FOR MEBI
-
 const bannedWords = [
   "sex","porn","nude","xxx","fuck","boobs","dick","pussy","bastard","asshole",
   "suicide","kill myself","murder","bomb","terrorist"
@@ -13,12 +12,29 @@ let warningCount = 0;
 const MAX_WARNINGS = 3;
 
 function isBlockedMessage(text) {
+  if (!text) return false;
   const lower = text.toLowerCase();
 
   if (bannedWords.some(w => lower.includes(w))) return true;
   if (bannedTopics.some(w => lower.includes(w))) return true;
 
   return false;
+}
+
+// ⭐ FORMAT MEBI REPLY INTO NUMBERED BULLETS
+function formatMebiReply(text) {
+  if (!text) return text;
+
+  const parts = text
+    .split("||")
+    .map(p => p.trim())
+    .filter(p => p.length > 0);
+
+  if (parts.length <= 1) return text;
+
+  return parts
+    .map((p, index) => `${index + 1}) ${p}`)
+    .join("\n");
 }
 
 // SANITUS MELETE – MEBI chat frontend with image (OCR) support
@@ -46,34 +62,41 @@ function fileToBase64(file) {
 async function sendMessage() {
   const input = document.getElementById("user-input");
   const text = (input?.value || "").trim();
-  
+
+  const chat = document.getElementById("chat");
+  const typing = document.getElementById("typing");
+
+  if (!chat) {
+    console.error("Chat container not found");
+    return;
+  }
+
   // 🛑 content filter for MEBI
-if (isBlockedMessage(text)) {
+  if (isBlockedMessage(text)) {
     warningCount++;
 
     if (warningCount >= MAX_WARNINGS) {
-        // lock message
-        const bot = document.createElement("div");
-        bot.className = "bubble bot";
-        bot.textContent = "🚫 Chat locked due to repeated unsafe messages. Refresh to restart.";
-        chat.appendChild(bot);
-        chat.scrollTop = chat.scrollHeight;
-        return;
+      // lock message
+      const bot = document.createElement("div");
+      bot.className = "bubble bot";
+      bot.textContent =
+        "🚫 Chat locked due to repeated unsafe messages. Refresh to restart.";
+      chat.appendChild(bot);
+      chat.scrollTop = chat.scrollHeight;
+      return;
     }
 
     const bot = document.createElement("div");
     bot.className = "bubble bot";
-    bot.textContent = "❌ Sorry, I can only answer education-related questions (NEET, JEE, ECET).";
+    bot.textContent =
+      "❌ Sorry, I can only answer education-related questions (NEET, JEE, ECET).";
     chat.appendChild(bot);
     chat.scrollTop = chat.scrollHeight;
     return;
-}
+  }
 
   // if no text and no image, do nothing
   if (!text && !selectedImageFile) return;
-
-  const chat = document.getElementById("chat");
-  const typing = document.getElementById("typing");
 
   // user bubble (only if text exists)
   if (text) {
@@ -125,14 +148,11 @@ if (isBlockedMessage(text)) {
     const botBubble = document.createElement("div");
     botBubble.className = "bubble bot";
 
-// ⭐ use the formatter here
-botBubble.textContent = formatMebiReply(reply);
+    // ⭐ format into numbered bullets
+    botBubble.textContent = formatMebiReply(replyText);
 
-chat.appendChild(botBubble);
-    botBubble.textContent = replyText;
     chat.appendChild(botBubble);
     chat.scrollTop = chat.scrollHeight;
-
   } catch (err) {
     console.error(err);
 
@@ -167,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 🔹 file input – capture the selected image for OCR
-  // Your HTML uses id="fileInput", so we check that first
   const fileInput =
     document.getElementById("fileInput") ||
     document.getElementById("image-upload") ||
