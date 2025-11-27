@@ -62,12 +62,18 @@ Rules:
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts }],
-        }),
-      }
-    );
-
+       body: JSON.stringify({
+  contents: [
+    {
+      parts: [
+        {
+          text: systemPrompt + "\n\nStudent question: " + (question || "")
+        }
+      ]
+    }
+  ]
+}),
+        
     if (!response.ok) {
       const errText = await response.text();
       console.error("Gemini API error:", errText);
