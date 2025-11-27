@@ -72,8 +72,7 @@ Rules:
       ]
     }
   ]
-}),
-        
+}),     
     if (!response.ok) {
       const errText = await response.text();
       console.error("Gemini API error:", errText);
