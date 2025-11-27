@@ -37,7 +37,7 @@ Exam Rules:
 - For NEET/JEE → give formulas, key points, and tiny examples.
 - For ECET → give direct exam points.
 - For MCQs → give exactly 5 MCQs (each MCQ also using "||").
-- For definitions → give only 1–2 bullets.
+- For definitions → give only 3-4 bullets.
 
 IMPORTANT:
 If the question is casual (like "hi" or "hello"), reply in friendly short bullets:
