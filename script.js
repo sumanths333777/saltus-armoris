@@ -46,6 +46,28 @@ function fileToBase64(file) {
 async function sendMessage() {
   const input = document.getElementById("user-input");
   const text = (input?.value || "").trim();
+  
+  // 🛑 content filter for MEBI
+if (isBlockedMessage(text)) {
+    warningCount++;
+
+    if (warningCount >= MAX_WARNINGS) {
+        // lock message
+        const bot = document.createElement("div");
+        bot.className = "bubble bot";
+        bot.textContent = "🚫 Chat locked due to repeated unsafe messages. Refresh to restart.";
+        chat.appendChild(bot);
+        chat.scrollTop = chat.scrollHeight;
+        return;
+    }
+
+    const bot = document.createElement("div");
+    bot.className = "bubble bot";
+    bot.textContent = "❌ Sorry, I can only answer education-related questions (NEET, JEE, ECET).";
+    chat.appendChild(bot);
+    chat.scrollTop = chat.scrollHeight;
+    return;
+}
 
   // if no text and no image, do nothing
   if (!text && !selectedImageFile) return;
