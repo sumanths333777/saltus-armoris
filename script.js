@@ -124,6 +124,11 @@ if (isBlockedMessage(text)) {
     // bot bubble
     const botBubble = document.createElement("div");
     botBubble.className = "bubble bot";
+
+// ⭐ use the formatter here
+botBubble.textContent = formatMebiReply(reply);
+
+chat.appendChild(botBubble);
     botBubble.textContent = replyText;
     chat.appendChild(botBubble);
     chat.scrollTop = chat.scrollHeight;
