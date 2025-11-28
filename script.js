@@ -40,7 +40,7 @@ function formatMebiReply(text) {
 // SANITUS MELETE – MEBI chat frontend with image (OCR) support
 
 // 🔹 will store the last selected image file
-let selectedImageFile = null;
+let chatHistory = [];
 
 // 🔹 helper: convert File → base64 (without "data:..." prefix)
 function fileToBase64(file) {
@@ -114,21 +114,30 @@ async function sendMessage() {
   if (typing) typing.classList.remove("hidden");
 
   try {
-    // 🔹 prepare image payload if an image is selected
-    let imageData = null;
-    let imageType = null;
+    // store user message in history (for memory)
+  chatHistory.push({ role: "user", content: text });
 
-    if (selectedImageFile) {
-      imageData = await fileToBase64(selectedImageFile);
-      imageType = selectedImageFile.type || "image/png";
-    }
+  // prepare payload (with memory or with image)
+  let imageData = null;
+  let imageType = null;
+  let payload;
 
-    // 🔹 payload for backend
-    const payload = {
+  if (selectedImageFile) {
+    // 🖼 if you send an image, use old style (no history, but with image)
+    imageData = await fileToBase64(selectedImageFile);
+    imageType = selectedImageFile.type || "image/png";
+
+    payload = {
       question: text,
       imageData,
       imageType,
     };
+  } else {
+    // 🧠 normal text chat → send full chat history
+    payload = {
+      history: chatHistory,
+    };
+  }
 
     const response = await fetch("/api/ask", {
       method: "POST",
@@ -140,6 +149,9 @@ async function sendMessage() {
     console.log("AI:", data);
 
     const replyText = data.reply || "Sorry, I couldn't understand.";
+    
+    // save bot reply in history
+  chatHistory.push({ role: "assistant", content: replyText });
 
     // hide typing
     if (typing) typing.classList.add("hidden");
