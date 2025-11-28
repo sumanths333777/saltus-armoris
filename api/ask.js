@@ -3,17 +3,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ reply: "Method not allowed" });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;   // 👈 same env name you already use
+  const apiKey = process.env.GEMINI_API_KEY; // your old env name
   if (!apiKey) {
     return res.status(500).json({ reply: "Server API key missing" });
   }
 
-  try {
-    const { question, imageData, imageType } = req.body || {};
-
-    // 🔹 Build the text instructions for MEBI
- const systemPrompt = `
- 
+  // 🔹 Your old system prompt – unchanged
+  const systemPrompt = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
 STRICT STYLE RULES (MUST FOLLOW):
@@ -44,45 +40,74 @@ If the question is casual (like "hi" or "hello"), reply in friendly short bullet
 Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 `;
 
-    const userQuestion = question && question.trim()
-      ? question.trim()
-      : "Help the student using the text inside this image.";
+  try {
+    const { history, question, imageData, imageType } = req.body || {};
+    const modelName = "gemini-2.5-flash";
 
-    // 🔹 Build "parts" (text + optional image)
-    const parts = [
-      { text: systemPrompt },
-      { text: `Student question:\n${userQuestion}` },
-    ];
+    let contents = [];
 
-    if (imageData && imageType) {
-      parts.push({
-        inline_data: {
-          mime_type: imageType,   // e.g. "image/png"
-          data: imageData,        // base64 string (no data: prefix)
-        },
+    // 🔸 CASE 1: chat history is sent (memory mode)
+    if (Array.isArray(history) && history.length > 0) {
+      // First message = instructions
+      contents.push({
+        role: "user",
+        parts: [{ text: systemPrompt }]
+      });
+
+      // Add all previous messages
+      for (const msg of history) {
+        const role = msg.role === "assistant" ? "model" : "user";
+        const parts = [{ text: msg.content }];
+
+        // If this message also has an image (future use)
+        if (msg.imageData && msg.imageType) {
+          parts.push({
+            inline_data: {
+              mime_type: msg.imageType,
+              data: msg.imageData
+            }
+          });
+        }
+
+        contents.push({ role, parts });
+      }
+    } else {
+      // 🔸 CASE 2: old behaviour (no history, single question)
+      const userQuestion =
+        question && question.trim()
+          ? question.trim()
+          : "Help the student using the text inside this image.";
+
+      const parts = [
+        { text: systemPrompt },
+        { text: `Student question:\n${userQuestion}` }
+      ];
+
+      if (imageData && imageType) {
+        parts.push({
+          inline_data: {
+            mime_type: imageType, // e.g. "image/png"
+            data: imageData // base64 string
+          }
+        });
+      }
+
+      contents.push({
+        role: "user",
+        parts
       });
     }
 
-    const modelName = "gemini-2.5-flash";
+    // 🔹 Call Gemini
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents })
+      }
+    );
 
-   const response = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            {
-              text: `${systemPrompt}\n\nStudent question: ${question || ""}`
-            }
-          ]
-        }
-      ]
-    })
-  }
-);
     if (!response.ok) {
       const errText = await response.text();
       console.error("Gemini API error:", errText);
@@ -90,7 +115,6 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
     }
 
     const data = await response.json();
-
     const replyParts = data?.candidates?.[0]?.content?.parts || [];
     const replyText = replyParts
       .map((p) => p.text || "")
@@ -98,7 +122,7 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
       .trim();
 
     return res.status(200).json({
-      reply: replyText || "Sorry, I couldn't generate an answer.",
+      reply: replyText || "Sorry, I couldn't generate an answer."
     });
   } catch (err) {
     console.error("Server error:", err);
