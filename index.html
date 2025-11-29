@@ -247,40 +247,46 @@
       max-width: 260px;
     }
 
-   .chat-area {
-    position: absolute;
-    top: 120px;        /* below SANITAS header */
-    bottom: 70px;      /* above input bar */
-    left: 0;
-    right: 0;
-    padding: 12px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  /* 🔹 CHAT AREA + MESSAGES – FINAL */
+
+.chat-area {
+  margin-top: 18px;
+  width: 100%;
+  flex: 1;
+  padding: 0 18px 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
 }
 
- .bubble {
-    padding: 0;
-    border-radius: 0;
-    box-shadow: none;
-    background: transparent;
-    max-width: 100%;
-    font-size: 16px;
+/* common style for all messages */
+.bubble {
+  padding: 4px 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  max-width: 100%;
+  font-size: 15px;
+  line-height: 1.6;
 }
-    }
 
-    .bubble.bot {
+/* MEBI message – like ChatGPT left side */
+.bubble.bot {
   align-self: flex-start;
-  background: #ffffff;
-  white-space: pre-wrap;   /* ⭐ THIS LINE */
+  background: transparent;
+  color: #111827;
+  white-space: pre-wrap;
 }
-    
-    .bubble.user {
-      align-self: flex-end;
-      background: #1f3b73;
-      color: #ffffff;
-    }
+
+/* Your message – plain text on right, blue */
+.bubble.user {
+  align-self: flex-end;
+  background: transparent;
+  color: #1f3b73;
+  font-weight: 600;
+}
 
     .typing {
       display: flex;
@@ -565,6 +571,7 @@
 
 </body>
 </html>
+
 
 
 
