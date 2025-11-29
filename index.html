@@ -248,18 +248,14 @@
     }
 
   /* 🔹 CHAT AREA + MESSAGES – FINAL */
-
 .chat-area {
-  position: absolute;
-  top: 140px;        /* Below header */
-  bottom: 80px;      /* Above search bar */
-  left: 0;
-  right: 0;
+  margin-top: 18px;
+  width: 100%;
+  padding: 0 18px 100px;   /* bottom space so it won't hide behind bar */
   overflow-y: auto;
-  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 /* common style for all messages */
 .bubble {
@@ -321,13 +317,16 @@
     .typing.hidden { display: none; }
 
 .bottombar {
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 780px;      /* same as app max width on desktop */
+  padding: 10px 12px 16px;
   background: #f3e5d6;
   border-top: 1px solid #e5d4c2;
+  z-index: 50;
 }
     .input-row {
       background: #ffffff;
@@ -575,6 +574,7 @@
 
 </body>
 </html>
+
 
 
 
