@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8" />
 
   <!-- MAIN TITLE -->
   <title>SANITAS MELETE – AI Study Platform for NEET & JEE Students</title>
 
-  <!-- ONLY ONE GOOGLE VERIFICATION TAG (this one is correct!) -->
-<meta name="google-site-verification" content="EdU-ky9MPlB5lYDK43D_SqeqpwxaNWTrfc-tO6FDCqc" />
+  <!-- GOOGLE VERIFICATION -->
+  <meta name="google-site-verification" content="EdU-ky9MPlB5lYDK43D_SqeqpwxaNWTrfc-tO6FDCqc" />
 
-  <!-- RESPONSIVE SETTINGS -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- RESPONSIVE -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- DESCRIPTION (FOR GOOGLE SEARCH RESULTS) -->
+  <!-- DESCRIPTION -->
   <meta name="description" content="Sanitas Melete is a smart AI-powered study platform for NEET and JEE students. Get notes, MCQs, PYQs, quizzes and instant answers using AI.">
 
   <!-- KEYWORDS -->
@@ -21,17 +21,17 @@
   <!-- AUTHOR -->
   <meta name="author" content="Sanitas Melete Team">
 
-  <!-- OG TAGS (WHATSAPP / SOCIAL PREVIEW) -->
+  <!-- OG TAGS -->
   <meta property="og:title" content="SANITAS MELETE – AI Study Platform">
   <meta property="og:description" content="Smart AI doubt solver for NEET & JEE students. Ask doubts, get instant answers.">
-  <meta property="og:url" content="https://sanitusmelete.vercel.app">
+  <meta property="og:url" content="https://sanitasmelete.vercel.app">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://sanitusmelete.vercel.app/favicon.ico">
+  <meta property="og:image" content="https://sanitasmelete.vercel.app/favicon.ico">
 
   <!-- FAVICON -->
   <link rel="icon" type="image/png" href="favicon.ico" />
 
-  <!-- JSON-LD STRUCTURED DATA (NOW WITH {} CORRECTLY) -->
+  <!-- JSON-LD (FIXED) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -62,7 +62,7 @@
       "@type": "Brand",
       "name": "Sanitas Melete",
       "logo": "https://sanitasmelete.vercel.app/favicon.ico"
- 
+    }
   }
   </script>
 
@@ -71,17 +71,16 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      background: #f8f1e8;           /* creamy */
+      background: #f8f1e8;
       color: #111827;
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: stretch;
     }
 
     .app {
       width: 100%;
-      max-width: 480px;
+      max-width: 780px;
       min-height: 100vh;
       background: #fdf7f0;
       border-left: 1px solid #e5d4c2;
@@ -94,7 +93,6 @@
     @media (min-width: 900px) {
       body { align-items: center; }
       .app {
-        max-width: 780px;
         min-height: 90vh;
         margin: 24px auto;
         border-radius: 20px;
@@ -102,6 +100,7 @@
       }
     }
 
+    /* TOP BAR */
     .topbar {
       height: 56px;
       display: flex;
@@ -138,6 +137,7 @@
       text-transform: uppercase;
     }
 
+    /* MENUS */
     .study-menu,
     .settings-menu {
       position: absolute;
@@ -203,15 +203,15 @@
 
     .danger { color: #b91c1c; }
 
+    /* MAIN AREA */
     .main {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
       align-items: center;
-      text-align: center;
-      padding: 22px 18px 8px;
+      padding: 22px 18px 90px; /* bottom space for bar */
       gap: 10px;
+      overflow-y: auto;
     }
 
     .logo-big {
@@ -245,52 +245,58 @@
       font-size: 14px;
       color: #4b5563;
       max-width: 260px;
+      text-align: center;
+      margin-bottom: 6px;
     }
 
-  /* 🔹 CHAT AREA + MESSAGES – FINAL */
-.chat-area {
-  margin-top: 18px;
-  width: 100%;
-  padding: 0 18px 100px;   /* bottom space so it won't hide behind bar */
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-/* common style for all messages */
-.bubble {
-  padding: 4px 0;
-  border-radius: 0;
-  box-shadow: none;
-  background: transparent;
-  max-width: 100%;
-  font-size: 15px;
-  line-height: 1.6;
-}
+    /* CHAT AREA */
+    .chat-area {
+      width: 100%;
+      max-width: 620px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: visible;
+    }
 
-/* MEBI message – like ChatGPT left side */
-.bubble.bot {
-  align-self: flex-start;
-  background: transparent;
-  color: #111827;
-  white-space: pre-wrap;
-}
-.bubble.user {
-  align-self: flex-end;
-  background: #1f3b73;   /* BLUE BOX */
-  color: #ffffff;
-  padding: 10px 14px;
-  border-radius: 16px;
-  max-width: 80%;
-  font-size: 15px;
-}
+    .bubble {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 16px;
+      font-size: 15px;
+      max-width: 90%;
+      text-align: left;
+      box-shadow: 0 2px 6px rgba(15,23,42,0.06);
+      line-height: 1.6;
+    }
 
+    .bubble.bot {
+      align-self: flex-start;
+      background: #ffffff;
+      color: #111827;
+      white-space: pre-wrap;
+    }
+
+    .bubble.user {
+      align-self: flex-end;
+      background: #1f3b73;
+      color: #ffffff;
+      padding: 10px 14px;
+      max-width: 80%;
+    }
+
+    /* Typing indicator */
     .typing {
+      width: 100%;
+      max-width: 620px;
       display: flex;
       align-items: center;
       gap: 6px;
       margin-top: 4px;
       justify-content: flex-start;
+      font-size: 12px;
+      color: #6b7280;
     }
 
     .typing-dots {
@@ -316,18 +322,16 @@
 
     .typing.hidden { display: none; }
 
-.bottombar {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 780px;      /* same as app max width on desktop */
-  padding: 10px 12px 16px;
-  background: #f3e5d6;
-  border-top: 1px solid #e5d4c2;
-  z-index: 50;
-}
+    /* BOTTOM BAR */
+    .bottombar {
+      position: sticky;
+      bottom: 0;
+      padding: 10px 12px 16px;
+      background: #f3e5d6;
+      border-top: 1px solid #e5d4c2;
+      z-index: 40;
+    }
+
     .input-row {
       background: #ffffff;
       border-radius: 999px;
@@ -365,13 +369,6 @@
       cursor: pointer;
     }
 
-    .hint {
-      margin-top: 6px;
-      font-size: 11px;
-      color: #6b7280;
-      text-align: center;
-    }
-
     .upload-preview {
       margin-top: 4px;
       font-size: 11px;
@@ -379,95 +376,94 @@
       color: #6b7280;
       word-break: break-all;
     }
-    
-   /* ABOUT MEBI POPUP */
-.about-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
 
-.about-card {
-  background: #fffaf3;
-  padding: 18px 20px;
-  border-radius: 16px;
-  max-width: 320px;
-  width: 90%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  text-align: center;
-}
+    /* ABOUT MEBI POPUP */
+    .about-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
 
-.about-card h2 {
-  margin: 0 0 8px;
-  font-size: 18px;
-}
+    .about-card {
+      background: #fffaf3;
+      padding: 18px 20px;
+      border-radius: 16px;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      text-align: center;
+    }
 
-.about-card p {
-  margin: 4px 0;
-  font-size: 14px;
-}
+    .about-card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
 
-.about-close-btn {
-  margin-top: 12px;
-  background: #1f73ff;
-  color: white;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 14px;
-}
+    .about-card p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+
+    .about-close-btn {
+      margin-top: 12px;
+      background: #1f3b73;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
   <div class="app">
+
     <!-- TOP BAR -->
     <header class="topbar">
       <div class="top-left">
         <button class="icon-btn" title="Study menu" onclick="toggleStudy()">📘</button>
-        <div class="brand-text">SANITAS Melete</div>
+        <div class="brand-text">SANITAS MELETE</div>
       </div>
       <button class="icon-btn" title="Settings" onclick="toggleSettings()">⋮</button>
     </header>
 
-    <!-- STUDY MENU (LEFT) -->
+    <!-- STUDY MENU -->
     <div id="studyMenu" class="study-menu">
       <div class="menu-title">Study</div>
       <div class="menu-divider"></div>
-      <button class="menu-item">📚 study plan <small>plan</small></button>
+      <button class="menu-item">📚 Study plan <small>soon</small></button>
       <button class="menu-item">❓ MCQs <small>practice</small></button>
       <button class="menu-item">🕒 History <small>recent</small></button>
     </div>
 
-    <!-- SETTINGS MENU (RIGHT) -->
+    <!-- SETTINGS MENU -->
     <div id="settingsMenu" class="settings-menu">
       <div class="menu-title">Settings</div>
       <div class="menu-divider"></div>
       <button class="menu-item">👤 Profile <small>soon</small></button>
       <button class="menu-item">🎨 Theme <small>coming</small></button>
-     <button class="menu-item" id="aboutMebiBtn"> About MEBI <small>info</small></button>
+      <button class="menu-item" onclick="openAboutMebi()">ℹ️ About MEBI <small>info</small></button>
       <div class="menu-divider"></div>
       <button class="menu-item danger">🧹 Clear chat <small>coming</small></button>
     </div>
 
-    <!-- CENTER -->
+    <!-- MAIN CONTENT -->
     <main class="main">
       <div class="logo-big">∞</div>
       <div class="hello">Hi, I'm <span>MEBI</span> 👋</div>
       <div class="sub">How can I help you today?</div>
 
-      <!-- CHAT AREA -->
       <div id="chat" class="chat-area">
         <div class="bubble bot">
           I’m MEBI, your study buddy. Ask doubts, request MCQs, or send images.
         </div>
       </div>
 
-      <!-- TYPING INDICATOR -->
       <div id="typing" class="typing hidden">
         <div class="typing-dots">
           <span></span><span></span><span></span>
@@ -476,26 +472,33 @@
       </div>
     </main>
 
-    <!-- BOTTOM SEARCH BAR -->
-<footer class="bottombar">
-  <div class="input-row">
-
-    <!-- Upload button -->
-    <button class="upload-btn" title="Upload" onclick="document.getElementById('fileInput').click()">📄</button>
-
-    <!-- Hidden file input -->
-    <input id="fileInput" type="file" accept="image/*" style="display:none">
-
-    <!-- Text box -->
-    <input id="user-input" type="text" placeholder="Type your question here..." />
-
-    <!-- Send button (THIS is your arrow) -->
-    <button class="send-btn" onclick="sendMessage()">➤</button>
+    <!-- BOTTOM INPUT -->
+    <footer class="bottombar">
+      <div class="input-row">
+        <button class="upload-btn" title="Upload image" onclick="document.getElementById('fileInput').click()">📄</button>
+        <input id="fileInput" type="file" accept="image/*" style="display:none" />
+        <input id="user-input" type="text" placeholder="Type your question here..." />
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+      <div id="uploadPreview" class="upload-preview"></div>
+    </footer>
 
   </div>
-</footer>
 
-  <!-- UI / menu helpers -->
+  <!-- ABOUT MEBI POPUP -->
+  <div id="aboutMebiModal" class="about-modal">
+    <div class="about-card">
+      <h2>SANITAS MELETE – MEBI</h2>
+      <p>MEBI is your study buddy for NEET, JEE and other exams.</p>
+      <p>Ask doubts, request MCQs, or send images for help.</p>
+      <p style="font-size: 12px; opacity: 0.8;">
+        Built by SK + Drago ♾️
+      </p>
+      <button class="about-close-btn" onclick="closeAboutMebi()">Close</button>
+    </div>
+  </div>
+
+  <!-- UI HELPERS + ENTER KEY -->
   <script>
     function toggleStudy() {
       const s = document.getElementById('studyMenu');
@@ -510,7 +513,7 @@
       s.classList.toggle('open');
       t.classList.remove('open');
     }
-  
+
     // close menus when clicking outside
     document.addEventListener('click', function(e) {
       const study = document.getElementById('studyMenu');
@@ -525,22 +528,15 @@
       }
     });
 
-    // Upload preview
-    function triggerFile() {
-      document.getElementById('fileInput').click();
+    // About MEBI
+    function openAboutMebi() {
+      document.getElementById('aboutMebiModal').style.display = 'flex';
+    }
+    function closeAboutMebi() {
+      document.getElementById('aboutMebiModal').style.display = 'none';
     }
 
-    function showFile() {
-      const input = document.getElementById('fileInput');
-      const preview = document.getElementById('uploadPreview');
-      if (input.files && input.files[0]) {
-        
-      } else {
-        preview.textContent = "";
-      }
-    }
-
-    // Enter key sends using sendMessage() from script.js
+    // Enter key to send
     document.addEventListener('DOMContentLoaded', () => {
       const input = document.getElementById('user-input');
       if (input) {
@@ -554,69 +550,7 @@
     });
   </script>
 
-  <!-- REAL CHAT LOGIC (fetches Gemini via /api/ask) -->
+  <!-- REAL CHAT LOGIC -->
   <script src="script.js"></script>
-  
-  <!-- ABOUT MEBI POPUP -->
-<div id="aboutMebiModal" class="about-modal">
-  <div class="about-card">
-    <h2>SANITAS MELETE – MEBI</h2>
-    
-    <p>MEBI is your study buddy for NEET, JEE and other exams.</p>
-    <p>Ask doubts, request MCQs, or send images for help.</p>
-    
-    <p style="font-size: 12px; opacity: 0.8;">
-      Built by SK + Drago ♾️
-    </p>
-    
-    <button class="about-close-btn" onclick="closeAboutMebi()">Close</button>
-  </div>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
