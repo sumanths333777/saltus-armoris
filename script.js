@@ -40,6 +40,7 @@ function formatMebiReply(text) {
 // SANITUS MELETE – MEBI chat frontend with image (OCR) support
 
 // 🔹 will store the last selected image file
+let selectedImageFile = null;
 let chatHistory = [];
 
 // 🔹 helper: convert File → base64 (without "data:..." prefix)
@@ -109,70 +110,74 @@ async function sendMessage() {
 
   // clear text box
   if (input) input.value = "";
-// --- AUTO RETRY LOGIC (fix first-message error) ---
-async function askOnce() {
-  const res = await fetch("/api/ask", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      question: text,
-      imageBase64: selectedImageFile
-        ? await fileToBase64(selectedImageFile)
-        : null,
-    }),
-  });
 
-  if (!res.ok) throw new Error("fail");
-
-  const data = await res.json();
-  return data.reply || "I'm here! 😊";
-}
-
-try {
-  // 1st attempt
-  const reply = await askOnce();
-  botBubble.textContent = reply;
-} catch (e1) {
-  try {
-    // 2nd attempt (backend wake-up)
-    const reply2 = await askOnce();
-    botBubble.textContent = reply2;
-  } catch (e2) {
-    botBubble.textContent = "MEBI: Network error. Please try again.";
-  }
-}
   // show typing dots (if element exists)
   if (typing) typing.classList.remove("hidden");
 
-    // save bot reply in history
+  // --- AUTO RETRY LOGIC (fix first-message error) ---
+  async function askOnce() {
+    const res = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: text,
+        imageBase64: selectedImageFile
+          ? await fileToBase64(selectedImageFile)
+          : null,
+      }),
+    });
+
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+    return data.reply || "I'm here! 😊";
+  }
+
+  let replyText = "";
+
+  try {
+    // 1st attempt
+    replyText = await askOnce();
+  } catch (e1) {
+    try {
+      // 2nd attempt (backend wake-up)
+      replyText = await askOnce();
+    } catch (e2) {
+      // both attempts failed → show single error bubble
+      console.error(e2);
+      if (typing) typing.classList.add("hidden");
+
+      const errorBubble = document.createElement("div");
+      errorBubble.className = "bubble bot";
+      errorBubble.textContent = "MEBI: Network error. Please try again.";
+      chat.appendChild(errorBubble);
+      chat.scrollTop = chat.scrollHeight;
+
+      selectedImageFile = null;
+      return;
+    }
+  }
+
+  // ---- success path ----
+
+  // save bot reply in history
   chatHistory.push({ role: "assistant", content: replyText });
 
-    // hide typing
-    if (typing) typing.classList.add("hidden");
+  // hide typing
+  if (typing) typing.classList.add("hidden");
 
-    // bot bubble
-    const botBubble = document.createElement("div");
-    botBubble.className = "bubble bot";
+  // bot bubble
+  const botBubble = document.createElement("div");
+  botBubble.className = "bubble bot";
 
-    // ⭐ format into numbered bullets
-    botBubble.textContent = formatMebiReply(replyText);
+  // ⭐ format into numbered bullets
+  botBubble.textContent = formatMebiReply(replyText);
 
-    chat.appendChild(botBubble);
-    chat.scrollTop = chat.scrollHeight;
-  } catch (err) {
-    console.error(err);
+  chat.appendChild(botBubble);
+  chat.scrollTop = chat.scrollHeight;
 
-    if (typing) typing.classList.add("hidden");
-
-    const botBubble = document.createElement("div");
-    botBubble.className = "bubble bot";
-    botBubble.textContent = "MEBI: Network error. Please try again.";
-    chat.appendChild(botBubble);
-    chat.scrollTop = chat.scrollHeight;
-  } finally {
-    // after sending, clear the selected image
-    selectedImageFile = null;
-  }
+  // after sending, clear the selected image
+  selectedImageFile = null;
 }
 
 // 🔹 NO PREVIEW – this does nothing (but HTML can still call showFile())
@@ -225,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
 // 🔸 Call backend once secretly to wake it up
 async function warmupMEBI() {
   try {
@@ -240,4 +246,3 @@ async function warmupMEBI() {
 
 // 🔸 Run this automatically when page opens
 window.addEventListener("load", warmupMEBI);
-
