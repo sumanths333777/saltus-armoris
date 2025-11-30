@@ -391,7 +391,12 @@
       color: #6b7280;
       word-break: break-all;
     }
-
+.selected-image-name {
+  font-size: 12px;
+  color: #555;
+  margin: 4px 8px;
+  opacity: 0.9;
+}
     /* ABOUT MEBI POPUP */
     .about-modal {
       position: fixed;
@@ -433,6 +438,7 @@
       cursor: pointer;
       font-size: 14px;
     }
+    
   </style>
 </head>
 <body>
@@ -491,6 +497,7 @@
     <footer class="bottombar">
       <div class="input-row">
         <button class="upload-btn" title="Upload image" onclick="document.getElementById('fileInput').click()">📄</button>
+        <dic id= "selected-image-name" class="selected-image-name"></div>
         <input id="fileInput" type="file" accept="image/*" style="display:none" />
         <input id="user-input" type="text" placeholder="Type your question here..." />
         <button class="send-btn" onclick="sendMessage()">➤</button>
@@ -569,4 +576,5 @@
   <script src="script.js"></script>
 </body>
 </html>
+
 
