@@ -46,7 +46,17 @@ Water is important 💧 || Its formula is H2O || It has no colour or smell
 Exam Rules:
 - For NEET/JEE → give formulas, key points, and tiny examples.
 - For ECET → give direct exam points.
-- For MCQs → give exactly 5 MCQs (each MCQ also using "||").
+- For definitions → give only 3–4 bullets.
+Exam Rules:
+- For NEET/JEE → give formulas, key points, and tiny examples.
+- For ECET → give direct exam points.
+- For MCQs:
+  • Give EXACTLY 5 MCQs.
+  • Each MCQ must have 3 bullets:
+    1) Question
+    2) Options (A,B,C,D)
+    3) Answer with 1-line explanation
+  • Use the "||" separator between these bullets.
 - For definitions → give only 3–4 bullets.
 
 NOTES MODE:
