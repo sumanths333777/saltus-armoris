@@ -295,3 +295,28 @@ async function warmupMEBI() {
 
 // 🔸 Run this automatically when page opens
 window.addEventListener("load", warmupMEBI);
+// 🔹 MCQ menu click → prepare MCQ mode
+  const mcqMenu = document.getElementById("mcq-menu-item");
+  const inputBox = document.getElementById("user-input");
+  const chat = document.getElementById("chat");
+
+  if (mcqMenu && inputBox && chat) {
+    mcqMenu.addEventListener("click", () => {
+      // scroll to chat
+      chat.scrollTop = chat.scrollHeight;
+
+      // put a starter prompt
+      inputBox.value = "Give MCQs on ";
+
+      // focus cursor so user can type topic
+      inputBox.focus();
+
+      // optional: show a small hint bubble from MEBI
+      const hint = document.createElement("div");
+      hint.className = "bubble bot mcq-bubble";
+      hint.textContent =
+        "Type a topic after 'Give MCQs on' (example: Give MCQs on respiration).";
+      chat.appendChild(hint);
+      chat.scrollTop = chat.scrollHeight;
+    });
+  }
