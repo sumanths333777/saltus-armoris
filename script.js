@@ -1,11 +1,11 @@
 // 🔐 SIMPLE CONTENT FILTER FOR MEBI
 const bannedWords = [
-  "sex","porn","nude","xxx","fuck","boobs","dick","pussy","bastard","asshole",
-  "suicide","kill myself","murder","bomb","terrorist"
+  "sex", "porn", "nude", "xxx", "fuck", "boobs", "dick", "pussy", "bastard", "asshole",
+  "suicide", "kill myself", "murder", "bomb", "terrorist"
 ];
 
 const bannedTopics = [
-  "how to hack","hack wifi","make bomb","drugs","weed","ganja"
+  "how to hack", "hack wifi", "make bomb", "drugs", "weed", "ganja"
 ];
 
 let warningCount = 0;
@@ -15,8 +15,8 @@ function isBlockedMessage(text) {
   if (!text) return false;
   const lower = text.toLowerCase();
 
-  if (bannedWords.some(w => lower.includes(w))) return true;
-  if (bannedTopics.some(w => lower.includes(w))) return true;
+  if (bannedWords.some((w) => lower.includes(w))) return true;
+  if (bannedTopics.some((w) => lower.includes(w))) return true;
 
   return false;
 }
@@ -27,8 +27,8 @@ function formatMebiReply(text) {
 
   const parts = text
     .split("||")
-    .map(p => p.trim())
-    .filter(p => p.length > 0);
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
 
   if (parts.length <= 1) return text;
 
@@ -37,11 +37,12 @@ function formatMebiReply(text) {
     .join("\n");
 }
 
-// SANITUS MELETE – MEBI chat frontend with image (OCR) support
+// SANITAS MELETE – MEBI chat frontend with image (OCR) support
 
-// 🔹 will store the last selected image file
+// 🔹 globals
 let selectedImageFile = null;
 let chatHistory = [];
+let mcqHintShown = false; // for MCQ menu hint
 
 // 🔹 helper: convert File → base64 (without "data:..." prefix)
 function fileToBase64(file) {
@@ -66,6 +67,7 @@ async function sendMessage() {
 
   const chat = document.getElementById("chat");
   const typing = document.getElementById("typing");
+  const imageNameEl = document.getElementById("selected-image-name");
 
   if (!chat) {
     console.error("Chat container not found");
@@ -114,31 +116,29 @@ async function sendMessage() {
   // show typing dots (if element exists)
   if (typing) typing.classList.remove("hidden");
 
-// --- AUTO RETRY LOGIC (fix first-message error + OCR) ---
-async function askOnce() {
-  // convert image (if any)
-  const imageBase64 = selectedImageFile
-    ? await fileToBase64(selectedImageFile)
-    : null;
+  // --- AUTO RETRY LOGIC (fix first-message error + OCR) ---
+  async function askOnce() {
+    // convert image (if any)
+    const imageBase64 = selectedImageFile
+      ? await fileToBase64(selectedImageFile)
+      : null;
 
-  const res = await fetch("/api/ask", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      question: text,
-      imageData: imageBase64,                     // 👈 matches ask.js
-      imageType: selectedImageFile
-        ? selectedImageFile.type                  // e.g. "image/png"
-        : null,
-    }),
-  });
+    const res = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: text,
+        imageData: imageBase64,
+        imageType: selectedImageFile ? selectedImageFile.type : null
+        // history: chatHistory   // (optional: enable later if you want memory)
+      })
+    });
 
-  if (!res.ok) throw new Error("HTTP " + res.status);
+    if (!res.ok) throw new Error("HTTP " + res.status);
 
-  const data = await res.json();
-  return data.reply || "I'm here! 😊";
-}
-
+    const data = await res.json();
+    return data.reply || "I'm here! 😊";
+  }
 
   let replyText = "";
 
@@ -168,55 +168,49 @@ async function askOnce() {
 
   // ---- success path ----
 
-  // save bot reply in history
+  // save bot reply in history (optional for future memory)
   chatHistory.push({ role: "assistant", content: replyText });
 
-// ---- success path ----
+  // hide typing dots
+  if (typing) typing.classList.add("hidden");
 
-// save bot reply in history
-chatHistory.push({ role: "assistant", content: replyText });
+  // bot bubble
+  const botBubble = document.createElement("div");
+  botBubble.className = "bubble bot";
 
-// hide typing dots
-if (typing) typing.classList.add("hidden");
+  // 🔍 detect NOTES / PHOTO requests (cream notes card)
+  const lowerQuestion = (text || "").toLowerCase();
+  const isNotesRequest =
+    lowerQuestion.includes("notes") ||
+    lowerQuestion.includes("short notes") ||
+    lowerQuestion.includes("summary") ||
+    lowerQuestion.includes("photo") ||
+    lowerQuestion.includes("image") ||
+    lowerQuestion.includes("diagram");
 
-// bot bubble
-const botBubble = document.createElement("div");
-botBubble.className = "bubble bot";
+  // 🔍 detect MCQ requests (MCQ blue card)
+  const isMcqRequest =
+    lowerQuestion.includes("mcq") ||
+    lowerQuestion.includes("mcqs") ||
+    lowerQuestion.includes("objective questions") ||
+    lowerQuestion.includes("multiple choice");
 
-// 🔍 detect NOTES / PHOTO requests (cream notes card)
-const lowerQuestion = (text || "").toLowerCase();
-const isNotesRequest =
-  lowerQuestion.includes("notes") ||
-  lowerQuestion.includes("short notes") ||
-  lowerQuestion.includes("summary") ||
-  lowerQuestion.includes("photo") ||
-  lowerQuestion.includes("image") ||
-  lowerQuestion.includes("diagram");
+  // ⭐ apply styles
+  if (isNotesRequest) {
+    botBubble.classList.add("note-bubble");
+  } else if (isMcqRequest) {
+    botBubble.classList.add("mcq-bubble");
+  }
 
-// 🔍 detect MCQ requests (MCQ blue card)
-const isMcqRequest =
-  lowerQuestion.includes("mcq") ||
-  lowerQuestion.includes("mcqs") ||
-  lowerQuestion.includes("objective questions") ||
-  lowerQuestion.includes("multiple choice");
+  // format into numbered bullets
+  botBubble.textContent = formatMebiReply(replyText);
 
-// ⭐ apply styles
-if (isNotesRequest) {
-  botBubble.classList.add("note-bubble");
-} else if (isMcqRequest) {
-  botBubble.classList.add("mcq-bubble");
-}
+  chat.appendChild(botBubble);
+  chat.scrollTop = chat.scrollHeight;
 
-// format into numbered bullets
-botBubble.textContent = formatMebiReply(replyText);
-
-chat.appendChild(botBubble);
-chat.scrollTop = chat.scrollHeight;
-
-// after sending, clear the selected image
-selectedImageFile = null;
-const imageNameEl = document.getElementById("selected-image-name");
-if (imageNameEl) imageNameEl.textContent = "";
+  // after sending, clear the selected image + label
+  selectedImageFile = null;
+  if (imageNameEl) imageNameEl.textContent = "";
 }
 
 // 🔹 NO PREVIEW – this does nothing (but HTML can still call showFile())
@@ -237,29 +231,28 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 🔹 file input – capture the selected image for OCR
-const fileInput =
-  document.getElementById("fileInput") ||
-  document.getElementById("image-upload") ||
-  document.querySelector('input[type="file"]');
+  const fileInput =
+    document.getElementById("fileInput") ||
+    document.getElementById("image-upload") ||
+    document.querySelector('input[type="file"]');
 
-const imageNameEl = document.getElementById("selected-image-name");
+  const imageNameEl = document.getElementById("selected-image-name");
 
-if (fileInput) {
-  fileInput.addEventListener("change", (e) => {
-    const file = e.target.files?.[0] || null;
-    selectedImageFile = file;
+  if (fileInput) {
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0] || null;
+      selectedImageFile = file;
 
-    if (imageNameEl) {
-      if (file) {
-        imageNameEl.textContent = `📎 Image attached: ${file.name}`;
-      } else {
-        imageNameEl.textContent = "";
+      if (imageNameEl) {
+        imageNameEl.textContent = file
+          ? `📎 Image attached: ${file.name}`
+          : "";
       }
-    }
 
-    console.log("Selected image:", file?.name);
-  });
-}
+      console.log("Selected image:", file?.name);
+    });
+  }
+
   // ABOUT MEBI POPUP LOGIC
   const aboutBtn = document.getElementById("aboutMebiBtn");
   const aboutModal = document.getElementById("aboutMebiModal");
@@ -278,6 +271,35 @@ if (fileInput) {
       aboutModal.style.display = "none";
     });
   }
+
+  // 🔹 MCQ menu click → prepare MCQ mode
+  const mcqMenu = document.getElementById("mcq-menu-item");
+  const chat = document.getElementById("chat");
+
+  if (mcqMenu && input && chat) {
+    mcqMenu.style.cursor = "pointer";
+
+    mcqMenu.addEventListener("click", () => {
+      // scroll to chat bottom
+      chat.scrollTop = chat.scrollHeight;
+
+      // pre-fill MCQ prompt
+      input.value = "Give MCQs on ";
+      input.focus();
+
+      // show hint ONLY the first time
+      if (!mcqHintShown) {
+        const hint = document.createElement("div");
+        hint.className = "bubble bot mcq-bubble";
+        hint.textContent =
+          "Type a topic after 'Give MCQs on' (example: Give MCQs on respiration).";
+        chat.appendChild(hint);
+        chat.scrollTop = chat.scrollHeight;
+
+        mcqHintShown = true;
+      }
+    });
+  }
 });
 
 // 🔸 Call backend once secretly to wake it up
@@ -286,7 +308,7 @@ async function warmupMEBI() {
     await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: "warmup" }),
+      body: JSON.stringify({ question: "warmup" })
     });
   } catch (err) {
     // ignore warmup errors
@@ -295,29 +317,3 @@ async function warmupMEBI() {
 
 // 🔸 Run this automatically when page opens
 window.addEventListener("load", warmupMEBI);
-// 🔹 MCQ menu click → prepare MCQ mode
-  const mcqMenu = document.getElementById("mcq-menu-item");
-  const inputBox = document.getElementById("user-input");
-  const chat = document.getElementById("chat");
-
-  if (mcqMenu && inputBox && chat) {
-  mcqMenu.addEventListener("click", () => {
-  // scroll to chat
-  chat.scrollTop = chat.scrollHeight;
-
-  // put a starter prompt
-  inputBox.value = "Give MCQs on ";
-  inputBox.focus();
-
-  // show hint bubble ONLY once
-  if (!mcqHintShown) {
-    const hint = document.createElement("div");
-    hint.className = "bubble bot mcq-bubble";
-    hint.textContent =
-      "Type a topic after 'Give MCQs on' (example: Give MCQs on respiration).";
-    chat.appendChild(hint);
-    chat.scrollTop = chat.scrollHeight;
-
-    mcqHintShown = true; // prevent future hints
-  }
-});
