@@ -292,7 +292,7 @@ async function warmupMEBI() {
     // ignore warmup errors
   }
 }
-
+let mcqHintShown = false;
 // 🔸 Run this automatically when page opens
 window.addEventListener("load", warmupMEBI);
 // 🔹 MCQ menu click → prepare MCQ mode
@@ -301,22 +301,23 @@ window.addEventListener("load", warmupMEBI);
   const chat = document.getElementById("chat");
 
   if (mcqMenu && inputBox && chat) {
-    mcqMenu.addEventListener("click", () => {
-      // scroll to chat
-      chat.scrollTop = chat.scrollHeight;
+  mcqMenu.addEventListener("click", () => {
+  // scroll to chat
+  chat.scrollTop = chat.scrollHeight;
 
-      // put a starter prompt
-      inputBox.value = "Give MCQs on ";
+  // put a starter prompt
+  inputBox.value = "Give MCQs on ";
+  inputBox.focus();
 
-      // focus cursor so user can type topic
-      inputBox.focus();
+  // show hint bubble ONLY once
+  if (!mcqHintShown) {
+    const hint = document.createElement("div");
+    hint.className = "bubble bot mcq-bubble";
+    hint.textContent =
+      "Type a topic after 'Give MCQs on' (example: Give MCQs on respiration).";
+    chat.appendChild(hint);
+    chat.scrollTop = chat.scrollHeight;
 
-      // optional: show a small hint bubble from MEBI
-      const hint = document.createElement("div");
-      hint.className = "bubble bot mcq-bubble";
-      hint.textContent =
-        "Type a topic after 'Give MCQs on' (example: Give MCQs on respiration).";
-      chat.appendChild(hint);
-      chat.scrollTop = chat.scrollHeight;
-    });
+    mcqHintShown = true; // prevent future hints
   }
+});
