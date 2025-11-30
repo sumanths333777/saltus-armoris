@@ -391,11 +391,23 @@
       color: #6b7280;
       word-break: break-all;
     }
+.input-area {
+  padding: 8px 12px;
+}
+
+/* row with input + button (your old styles can stay here) */
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ✅ filename text – NOT a box */
 .selected-image-name {
   font-size: 12px;
   color: #555;
-  margin: 4px 8px;
-  opacity: 0.9;
+  margin: 0 4px 4px;
+  min-height: 16px;          /* reserve little space even if empty */
 }
     /* ABOUT MEBI POPUP */
     .about-modal {
@@ -497,10 +509,25 @@
     <footer class="bottombar">
       <div class="input-row">
         <button class="upload-btn" title="Upload image" onclick="document.getElementById('fileInput').click()">📄</button>
-        <dic id= "selected-image-name" class="selected-image-name"></div>
         <input id="fileInput" type="file" accept="image/*" style="display:none" />
         <input id="user-input" type="text" placeholder="Type your question here..." />
         <button class="send-btn" onclick="sendMessage()">➤</button>
+        <div class="input-area">
+  <!-- ✅ small text line for image name -->
+  <div id="selected-image-name" class="selected-image-name"></div>
+
+  <!-- your existing input row -->
+  <div class="input-row">
+    <input
+      id="user-input"
+      type="text"
+      placeholder="Type your question here..."
+    />
+    <button id="send-btn">
+      <!-- your arrow icon here -->
+    </button>
+  </div>
+
       </div>
       <div id="uploadPreview" class="upload-preview"></div>
     </footer>
@@ -576,5 +603,6 @@
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
