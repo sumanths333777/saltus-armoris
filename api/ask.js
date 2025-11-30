@@ -92,8 +92,8 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 
         contents.push({ role, parts });
       }
-    } else {
-      // 🔸 CASE 2: old behaviour (no history, single question)
+  } else {
+      // 🔸 CASE 2: no history, single question (with optional image)
       const userQuestion =
         question && question.trim()
           ? question.trim()
@@ -104,11 +104,12 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
         { text: `Student question:\n${userQuestion}` }
       ];
 
-      if (imageData && imageType) {
+      // ✅ attach image if present (even if type missing)
+      if (imageData) {
         parts.push({
           inline_data: {
-            mime_type: imageType, // e.g. "image/png"
-            data: imageData // base64 string
+            mime_type: imageType || "image/png",  // fallback
+            data: imageData                       // base64 string
           }
         });
       }
