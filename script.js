@@ -114,24 +114,31 @@ async function sendMessage() {
   // show typing dots (if element exists)
   if (typing) typing.classList.remove("hidden");
 
-  // --- AUTO RETRY LOGIC (fix first-message error) ---
-  async function askOnce() {
-    const res = await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question: text,
-        imageBase64: selectedImageFile
-          ? await fileToBase64(selectedImageFile)
-          : null,
-      }),
-    });
+// --- AUTO RETRY LOGIC (fix first-message error + OCR) ---
+async function askOnce() {
+  // convert image (if any)
+  const imageBase64 = selectedImageFile
+    ? await fileToBase64(selectedImageFile)
+    : null;
 
-    if (!res.ok) throw new Error("HTTP " + res.status);
+  const res = await fetch("/api/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      question: text,
+      imageData: imageBase64,                     // 👈 matches ask.js
+      imageType: selectedImageFile
+        ? selectedImageFile.type                  // e.g. "image/png"
+        : null,
+    }),
+  });
 
-    const data = await res.json();
-    return data.reply || "I'm here! 😊";
-  }
+  if (!res.ok) throw new Error("HTTP " + res.status);
+
+  const data = await res.json();
+  return data.reply || "I'm here! 😊";
+}
+
 
   let replyText = "";
 
