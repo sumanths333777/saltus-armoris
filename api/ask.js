@@ -52,10 +52,12 @@ Exam Rules:
 - For ECET → give direct exam points.
 - For MCQs:
   • Give EXACTLY 5 MCQs.
-  • Each MCQ must have 3 bullets:
-    1) Question
-    2) Options (A,B,C,D)
-    3) Answer with 1-line explanation
+  • Each MCQ must follow this format:
+    Q: question here || 
+    Options: A)…, B)…, C)…, D)… ||
+    Answer: correct option with short 1-line explanation
+  • NEVER use * or long paragraphs.
+  • ALWAYS use the "||" separator.
   • Use the "||" separator between these bullets.
 - For definitions → give only 3–4 bullets.
 
