@@ -129,18 +129,3 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
     return res.status(500).json({ reply: "Error talking to AI." });
   }
 }
-// 🔸 Call backend once secretly to wake it up
-async function warmupMEBI() {
-  try {
-    await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: "warmup" }),
-    });
-  } catch (err) {
-    // ignore warmup errors
-  }
-}
-
-// 🔸 Run this automatically when page opens
-window.addEventListener("load", warmupMEBI);
