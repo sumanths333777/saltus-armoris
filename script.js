@@ -292,7 +292,7 @@ async function warmupMEBI() {
     // ignore warmup errors
   }
 }
-let mcqHintShown = false;
+
 // 🔸 Run this automatically when page opens
 window.addEventListener("load", warmupMEBI);
 // 🔹 MCQ menu click → prepare MCQ mode
