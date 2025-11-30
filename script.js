@@ -161,6 +161,7 @@ async function askOnce() {
       chat.scrollTop = chat.scrollHeight;
 
       selectedImageFile = null;
+      if (imageNameEl) imageNameEl.textContent = "";
       return;
     }
   }
@@ -225,19 +226,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 🔹 file input – capture the selected image for OCR
-  const fileInput =
-    document.getElementById("fileInput") ||
-    document.getElementById("image-upload") ||
-    document.querySelector('input[type="file"]');
+const fileInput =
+  document.getElementById("fileInput") ||
+  document.getElementById("image-upload") ||
+  document.querySelector('input[type="file"]');
 
-  if (fileInput) {
-    fileInput.addEventListener("change", (e) => {
-      const file = e.target.files?.[0] || null;
-      selectedImageFile = file;
-      console.log("Selected image:", file?.name);
-    });
-  }
+const imageNameEl = document.getElementById("selected-image-name");
 
+if (fileInput) {
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files?.[0] || null;
+    selectedImageFile = file;
+
+    if (imageNameEl) {
+      if (file) {
+        imageNameEl.textContent = `📎 Image attached: ${file.name}`;
+      } else {
+        imageNameEl.textContent = "";
+      }
+    }
+
+    console.log("Selected image:", file?.name);
+  });
+}
   // ABOUT MEBI POPUP LOGIC
   const aboutBtn = document.getElementById("aboutMebiBtn");
   const aboutModal = document.getElementById("aboutMebiModal");
