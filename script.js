@@ -205,7 +205,9 @@ async function askOnce() {
   chat.scrollTop = chat.scrollHeight;
 
   // after sending, clear the selected image
-  selectedImageFile = null;
+selectedImageFile = null;
+const imageNameEl = document.getElementById("selected-image-name");
+if (imageNameEl) imageNameEl.textContent = "";
 }
 
 // 🔹 NO PREVIEW – this does nothing (but HTML can still call showFile())
