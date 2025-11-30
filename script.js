@@ -173,38 +173,47 @@ async function askOnce() {
 
 // ---- success path ----
 
-  // save bot reply in history
-  chatHistory.push({ role: "assistant", content: replyText });
+// save bot reply in history
+chatHistory.push({ role: "assistant", content: replyText });
 
-  // hide typing dots
-  if (typing) typing.classList.add("hidden");
+// hide typing dots
+if (typing) typing.classList.add("hidden");
 
-  // bot bubble
-  const botBubble = document.createElement("div");
-  botBubble.className = "bubble bot";
+// bot bubble
+const botBubble = document.createElement("div");
+botBubble.className = "bubble bot";
 
-  // 🔍 detect NOTES / PHOTO requests (for cream card)
-  const lowerQuestion = (text || "").toLowerCase();
-  const isNotesRequest =
-    lowerQuestion.includes("notes") ||
-    lowerQuestion.includes("short notes") ||
-    lowerQuestion.includes("summary") ||
-    lowerQuestion.includes("photo") ||
-    lowerQuestion.includes("image") ||
-    lowerQuestion.includes("diagram");
+// 🔍 detect NOTES / PHOTO requests (cream notes card)
+const lowerQuestion = (text || "").toLowerCase();
+const isNotesRequest =
+  lowerQuestion.includes("notes") ||
+  lowerQuestion.includes("short notes") ||
+  lowerQuestion.includes("summary") ||
+  lowerQuestion.includes("photo") ||
+  lowerQuestion.includes("image") ||
+  lowerQuestion.includes("diagram");
 
-  // ⭐ apply cream note style
-  if (isNotesRequest) {
-    botBubble.classList.add("note-bubble");
-  }
+// 🔍 detect MCQ requests (MCQ blue card)
+const isMcqRequest =
+  lowerQuestion.includes("mcq") ||
+  lowerQuestion.includes("mcqs") ||
+  lowerQuestion.includes("objective questions") ||
+  lowerQuestion.includes("multiple choice");
 
-  // format into numbered bullets
-  botBubble.textContent = formatMebiReply(replyText);
+// ⭐ apply styles
+if (isNotesRequest) {
+  botBubble.classList.add("note-bubble");
+} else if (isMcqRequest) {
+  botBubble.classList.add("mcq-bubble");
+}
 
-  chat.appendChild(botBubble);
-  chat.scrollTop = chat.scrollHeight;
+// format into numbered bullets
+botBubble.textContent = formatMebiReply(replyText);
 
-  // after sending, clear the selected image
+chat.appendChild(botBubble);
+chat.scrollTop = chat.scrollHeight;
+
+// after sending, clear the selected image
 selectedImageFile = null;
 const imageNameEl = document.getElementById("selected-image-name");
 if (imageNameEl) imageNameEl.textContent = "";
