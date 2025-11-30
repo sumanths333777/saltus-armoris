@@ -109,47 +109,41 @@ async function sendMessage() {
 
   // clear text box
   if (input) input.value = "";
+// --- AUTO RETRY LOGIC (fix first-message error) ---
+async function askOnce() {
+  const res = await fetch("/api/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      question: text,
+      imageBase64: selectedImageFile
+        ? await fileToBase64(selectedImageFile)
+        : null,
+    }),
+  });
 
+  if (!res.ok) throw new Error("fail");
+
+  const data = await res.json();
+  return data.reply || "I'm here! 😊";
+}
+
+try {
+  // 1st attempt
+  const reply = await askOnce();
+  botBubble.textContent = reply;
+} catch (e1) {
+  try {
+    // 2nd attempt (backend wake-up)
+    const reply2 = await askOnce();
+    botBubble.textContent = reply2;
+  } catch (e2) {
+    botBubble.textContent = "MEBI: Network error. Please try again.";
+  }
+}
   // show typing dots (if element exists)
   if (typing) typing.classList.remove("hidden");
 
-  try {
-    // store user message in history (for memory)
-  chatHistory.push({ role: "user", content: text });
-
-  // prepare payload (with memory or with image)
-  let imageData = null;
-  let imageType = null;
-  let payload;
-
-  if (selectedImageFile) {
-    // 🖼 if you send an image, use old style (no history, but with image)
-    imageData = await fileToBase64(selectedImageFile);
-    imageType = selectedImageFile.type || "image/png";
-
-    payload = {
-      question: text,
-      imageData,
-      imageType,
-    };
-  } else {
-    // 🧠 normal text chat → send full chat history
-    payload = {
-      history: chatHistory,
-    };
-  }
-
-    const response = await fetch("/api/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-    console.log("AI:", data);
-
-    const replyText = data.reply || "Sorry, I couldn't understand.";
-    
     // save bot reply in history
   chatHistory.push({ role: "assistant", content: replyText });
 
