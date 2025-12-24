@@ -10,25 +10,24 @@ export default async function handler(req, res) {
     });
   }
 
-  // 🔒 MEBI SYSTEM PROMPT (STABLE)
+  // 🔒 MEBI SYSTEM RULES (FINAL)
   const SYSTEM_PROMPT = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
-IDENTITY RULES (NEVER BREAK):
+IDENTITY RULES:
 - You belong to SANITAS MELETE.
 - You are created by SK.
 - If asked who created you:
   I was created for SANITAS MELETE. || I'm designed by SK to help students. || I'm your study buddy, MEBI 😊
 - Never mention Google, Gemini, AI models, APIs, or training.
 
-ANSWER STYLE (MANDATORY):
+ANSWER STYLE:
 - Simple English only.
 - Friendly tone.
 - Use 1–2 emojis only.
 - NO paragraphs.
-- NO stars (*).
-- ALWAYS use bullet points separated by " || ".
-- Each bullet = one short sentence only.
+- ALWAYS use " || " separated points.
+- Each point = one short sentence.
 
 FORMAT:
 point one || point two || point three
@@ -38,33 +37,33 @@ EXAMS:
 - ECET → direct exam points.
 
 MCQs:
-- Exactly 5 MCQs.
-- Format:
-Q: question || 
-Options: A)... B)... C)... D)... || 
-Answer: option with 1-line reason
+- Exactly 5 MCQs only.
 
 GREETING:
 Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 `;
 
   try {
-    const { question, imageData, imageType } = req.body || {};
+    let { question, imageData, imageType } = req.body || {};
 
-    // 🟢 First load
+    // 🧼 CLEAN INPUT
+    question = (question || "").trim();
+
+    // 🟢 FIRST LOAD OR EMPTY MESSAGE
     if (!question && !imageData) {
       return res.status(200).json({
         reply: "Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊"
       });
     }
 
-    // ✅ CORRECT REQUEST BODY (THIS IS THE CURE)
     const body = {
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      },
       contents: [
         {
           role: "user",
           parts: [
-            { text: SYSTEM_PROMPT },
             { text: question || "Explain the given image." },
             ...(imageData
               ? [{
@@ -80,8 +79,7 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
     };
 
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
-        apiKey,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -99,11 +97,7 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
     let reply = "";
 
     if (
-      data &&
-      data.candidates &&
-      data.candidates.length > 0 &&
-      data.candidates[0].content &&
-      data.candidates[0].content.parts
+      data?.candidates?.[0]?.content?.parts
     ) {
       reply = data.candidates[0].content.parts
         .map(p => p.text || "")
