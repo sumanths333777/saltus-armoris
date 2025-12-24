@@ -35,8 +35,7 @@ function formatMebiReply(text) {
 
 // 🔹 GLOBALS
 let selectedImageFile = null;
-let chatHistory = []; // 🧠 MEMORY
-let mcqHintShown = false;
+let chatHistory = [];
 
 // 🔹 File → base64
 function fileToBase64(file) {
@@ -82,15 +81,13 @@ async function sendMessage() {
     userBubble.className = "bubble user";
     userBubble.textContent = text;
     chat.appendChild(userBubble);
-
-    // 🧠 SAVE USER MEMORY
     chatHistory.push({ role: "user", text });
   }
 
   input.value = "";
   if (typing) typing.classList.remove("hidden");
 
-  // 🧠 COMBINE LAST 6 MESSAGES (THIS IS THE MAGIC)
+  // 🧠 CONTEXT (LAST 6 MESSAGES)
   const combinedQuestion = chatHistory
     .slice(-6)
     .map(m => m.text)
@@ -111,36 +108,29 @@ async function sendMessage() {
       })
     });
 
-    if (!res.ok) throw new Error("HTTP error");
     const data = await res.json();
     return data.reply;
   }
 
-  let reply;
+  let reply = "";
   try {
     reply = await askOnce();
   } catch {
-    try {
-      reply = await askOnce();
-    } catch {
-      if (typing) typing.classList.add("hidden");
-      const err = document.createElement("div");
-      err.className = "bubble bot";
-      err.textContent = "MEBI: Network error. Please try again.";
-      chat.appendChild(err);
-      return;
-    }
+    reply = "";
   }
 
   if (typing) typing.classList.add("hidden");
 
-  // 🤖 BOT BUBBLE
+  // 🤖 BOT SAFE FALLBACK
+  if (!reply) {
+    reply = "Hello! 👋 || I'm MEBI, your study buddy! || Please ask your question again 😊";
+  }
+
   const botBubble = document.createElement("div");
   botBubble.className = "bubble bot";
   botBubble.textContent = formatMebiReply(reply);
   chat.appendChild(botBubble);
 
-  // 🧠 SAVE BOT MEMORY
   chatHistory.push({ role: "bot", text: reply });
 
   selectedImageFile = null;
@@ -162,4 +152,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
