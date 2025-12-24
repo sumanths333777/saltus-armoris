@@ -10,47 +10,24 @@ export default async function handler(req, res) {
     });
   }
 
-  // 🔒 FINAL MEBI SYSTEM PROMPT
   const SYSTEM_PROMPT = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
-IDENTITY:
+RULES:
 - You belong to SANITAS MELETE.
 - You are created by SK.
-- Never mention Google, Gemini, AI, APIs, or models.
-
-STYLE RULES (STRICT):
+- Never mention Google, Gemini, AI models, APIs.
 - Simple English only.
-- Friendly tone.
+- Use bullet points separated by " || ".
 - Use 1–2 emojis only.
-- NO paragraphs.
-- NO stars.
-- ALWAYS use bullets separated by " || ".
-- Each bullet = one short sentence.
-
-FORMAT EXAMPLE:
-point one || point two || point three
 `;
 
   try {
-    const bodyReq = req.body || {};
-    let question = bodyReq.question;
+    const { question, imageData, imageType } = req.body || {};
 
-    // 🛟 HARD SAFETY: FIX FRONTEND MISTAKES
-    if (Array.isArray(question)) {
-      question = question.join(" ");
-    }
-
-    if (typeof question !== "string") {
-      question = "";
-    }
-
-    question = question.trim();
-
-    // 🟢 FIRST LOAD OR EMPTY
-    if (!question) {
+    if (!question && !imageData) {
       return res.status(200).json({
-        reply: "Hello! 👋 || I'm MEBI, your study buddy! || Ask me any study question 😊"
+        reply: "Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊"
       });
     }
 
@@ -61,14 +38,23 @@ point one || point two || point three
       contents: [
         {
           role: "user",
-          parts: [{ text: question }]
+          parts: [
+            { text: question || "Explain the image." },
+            ...(imageData
+              ? [{
+                  inline_data: {
+                    mime_type: imageType || "image/png",
+                    data: imageData
+                  }
+                }]
+              : [])
+          ]
         }
       ]
     };
 
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
-        apiKey,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,22 +62,27 @@ point one || point two || point three
       }
     );
 
-    if (!response.ok) {
-      return res.status(200).json({
-        reply: "Sorry 😅 || Network issue || Please ask again"
-      });
-    }
-
     const data = await response.json();
 
-    let reply =
-      data?.candidates?.[0]?.content?.parts
-        ?.map(p => p.text || "")
-        .join(" ")
-        .trim() || "";
+    let reply = "";
 
-    // 🧠 FINAL GUARANTEE RESPONSE
-    if (!reply || reply.length < 5) {
+    // ✅ SAFE EXTRACTION (THIS SAVES THE PATIENT)
+    if (data?.candidates?.length) {
+      const content = data.candidates[0].content;
+
+      if (content?.parts?.length) {
+        reply = content.parts
+          .map(p => (typeof p.text === "string" ? p.text : ""))
+          .join(" ");
+      } else if (typeof content?.text === "string") {
+        reply = content.text;
+      }
+    }
+
+    reply = reply.replace(/\s+/g, " ").trim();
+
+    // 🛡️ FINAL SAFETY
+    if (!reply || reply.length < 10) {
       reply = "I am ready 😊 || Please ask your question clearly || I will help you";
     }
 
@@ -99,7 +90,7 @@ point one || point two || point three
 
   } catch (err) {
     return res.status(200).json({
-      reply: "Sorry 😅 || Temporary issue || Please ask again"
+      reply: "I am here 😊 || Network was slow || Please ask again"
     });
   }
 }
