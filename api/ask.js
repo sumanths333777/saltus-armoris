@@ -1,9 +1,7 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ reply: "Method not allowed" });
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
+ export default async function handler(req, res) {
+  return res.status(200).json({ reply: "MEBI backend alive" });
+}
+const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ reply: "Server API key missing" });
   }
