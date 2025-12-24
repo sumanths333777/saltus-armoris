@@ -1,60 +1,52 @@
 // 🔐 SIMPLE CONTENT FILTER FOR MEBI
 const bannedWords = [
-  "sex", "porn", "nude", "xxx", "fuck", "boobs", "dick", "pussy", "bastard", "asshole",
-  "suicide", "kill myself", "murder", "bomb", "terrorist"
+  "sex","porn","nude","xxx","fuck","boobs","dick","pussy","bastard","asshole",
+  "suicide","kill myself","murder","bomb","terrorist"
 ];
 
 const bannedTopics = [
-  "how to hack", "hack wifi", "make bomb", "drugs", "weed", "ganja"
+  "how to hack","hack wifi","make bomb","drugs","weed","ganja"
 ];
 
 let warningCount = 0;
 const MAX_WARNINGS = 3;
 
+// 🔒 REQUEST LOCK (CRITICAL FIX)
+let isSending = false;
+
 function isBlockedMessage(text) {
   if (!text) return false;
   const lower = text.toLowerCase();
-
-  if (bannedWords.some((w) => lower.includes(w))) return true;
-  if (bannedTopics.some((w) => lower.includes(w))) return true;
-
+  if (bannedWords.some(w => lower.includes(w))) return true;
+  if (bannedTopics.some(w => lower.includes(w))) return true;
   return false;
 }
 
 // ⭐ FORMAT MEBI REPLY INTO NUMBERED BULLETS
 function formatMebiReply(text) {
   if (!text) return text;
-
   const parts = text
     .split("||")
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0);
-
+    .map(p => p.trim())
+    .filter(p => p.length > 0);
   if (parts.length <= 1) return text;
-
-  return parts
-    .map((p, index) => `${index + 1}) ${p}`)
-    .join("\n");
+  return parts.map((p,i)=>`${i+1}) ${p}`).join("\n");
 }
-
-// SANITAS MELETE – MEBI chat frontend with image (OCR) support
 
 // 🔹 globals
 let selectedImageFile = null;
 let chatHistory = [];
-let mcqHintShown = false; // for MCQ menu hint
+let mcqHintShown = false;
 
-// 🔹 helper: convert File → base64 (without "data:..." prefix)
+// 🔹 helper: convert File → base64
 function fileToBase64(file) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     if (!file) return resolve(null);
-
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result || "";
       const parts = result.toString().split(",");
-      const base64 = parts.length > 1 ? parts[1] : parts[0];
-      resolve(base64);
+      resolve(parts.length > 1 ? parts[1] : parts[0]);
     };
     reader.readAsDataURL(file);
   });
@@ -62,6 +54,9 @@ function fileToBase64(file) {
 
 // 🔹 send message (text + optional image)
 async function sendMessage() {
+  if (isSending) return; // 🔒 LOCK
+  isSending = true;
+
   const input = document.getElementById("user-input");
   const text = (input?.value || "").trim();
 
@@ -70,38 +65,31 @@ async function sendMessage() {
   const imageNameEl = document.getElementById("selected-image-name");
 
   if (!chat) {
-    console.error("Chat container not found");
+    isSending = false;
     return;
   }
 
-  // 🛑 content filter for MEBI
+  // 🛑 content filter
   if (isBlockedMessage(text)) {
     warningCount++;
-
-    if (warningCount >= MAX_WARNINGS) {
-      // lock message
-      const bot = document.createElement("div");
-      bot.className = "bubble bot";
-      bot.textContent =
-        "🚫 Chat locked due to repeated unsafe messages. Refresh to restart.";
-      chat.appendChild(bot);
-      chat.scrollTop = chat.scrollHeight;
-      return;
-    }
-
     const bot = document.createElement("div");
     bot.className = "bubble bot";
     bot.textContent =
-      "❌ Sorry, I can only answer education-related questions (NEET, JEE, ECET).";
+      warningCount >= MAX_WARNINGS
+        ? "🚫 Chat locked due to repeated unsafe messages. Refresh to restart."
+        : "❌ Sorry, I can only answer education-related questions (NEET, JEE, ECET).";
     chat.appendChild(bot);
     chat.scrollTop = chat.scrollHeight;
+    isSending = false;
     return;
   }
 
-  // if no text and no image, do nothing
-  if (!text && !selectedImageFile) return;
+  if (!text && !selectedImageFile) {
+    isSending = false;
+    return;
+  }
 
-  // user bubble (only if text exists)
+  // user bubble
   if (text) {
     const userBubble = document.createElement("div");
     userBubble.className = "bubble user";
@@ -110,15 +98,10 @@ async function sendMessage() {
     chat.scrollTop = chat.scrollHeight;
   }
 
-  // clear text box
   if (input) input.value = "";
-
-  // show typing dots (if element exists)
   if (typing) typing.classList.remove("hidden");
 
-  // --- AUTO RETRY LOGIC (fix first-message error + OCR) ---
   async function askOnce() {
-    // convert image (if any)
     const imageBase64 = selectedImageFile
       ? await fileToBase64(selectedImageFile)
       : null;
@@ -130,12 +113,10 @@ async function sendMessage() {
         question: text,
         imageData: imageBase64,
         imageType: selectedImageFile ? selectedImageFile.type : null
-        // history: chatHistory   // (optional: enable later if you want memory)
       })
     });
 
     if (!res.ok) throw new Error("HTTP " + res.status);
-
     const data = await res.json();
     return data.reply || "I'm here! 😊";
   }
@@ -145,40 +126,32 @@ async function sendMessage() {
   try {
     // 1st attempt
     replyText = await askOnce();
-  } catch (e1) {
+  } catch {
     try {
-      // 2nd attempt (backend wake-up)
+      // single safe retry (backend wake-up)
+      await new Promise(r => setTimeout(r, 1200));
       replyText = await askOnce();
     } catch (e2) {
-      // both attempts failed → show single error bubble
-      console.error(e2);
       if (typing) typing.classList.add("hidden");
-
       const errorBubble = document.createElement("div");
       errorBubble.className = "bubble bot";
       errorBubble.textContent = "MEBI: Network error. Please try again.";
       chat.appendChild(errorBubble);
       chat.scrollTop = chat.scrollHeight;
-
       selectedImageFile = null;
       if (imageNameEl) imageNameEl.textContent = "";
+      isSending = false; // 🔓 UNLOCK
       return;
     }
   }
 
-  // ---- success path ----
-
-  // save bot reply in history (optional for future memory)
+  // success
   chatHistory.push({ role: "assistant", content: replyText });
-
-  // hide typing dots
   if (typing) typing.classList.add("hidden");
 
-  // bot bubble
   const botBubble = document.createElement("div");
   botBubble.className = "bubble bot";
 
-  // 🔍 detect NOTES / PHOTO requests (cream notes card)
   const lowerQuestion = (text || "").toLowerCase();
   const isNotesRequest =
     lowerQuestion.includes("notes") ||
@@ -188,49 +161,36 @@ async function sendMessage() {
     lowerQuestion.includes("image") ||
     lowerQuestion.includes("diagram");
 
-  // 🔍 detect MCQ requests (MCQ blue card)
   const isMcqRequest =
     lowerQuestion.includes("mcq") ||
     lowerQuestion.includes("mcqs") ||
     lowerQuestion.includes("objective questions") ||
     lowerQuestion.includes("multiple choice");
 
-  // ⭐ apply styles
-  if (isNotesRequest) {
-    botBubble.classList.add("note-bubble");
-  } else if (isMcqRequest) {
-    botBubble.classList.add("mcq-bubble");
-  }
+  if (isNotesRequest) botBubble.classList.add("note-bubble");
+  else if (isMcqRequest) botBubble.classList.add("mcq-bubble");
 
-  // format into numbered bullets
   botBubble.textContent = formatMebiReply(replyText);
-
   chat.appendChild(botBubble);
   chat.scrollTop = chat.scrollHeight;
 
-  // after sending, clear the selected image + label
   selectedImageFile = null;
   if (imageNameEl) imageNameEl.textContent = "";
+  isSending = false; // 🔓 UNLOCK
 }
 
-// 🔹 NO PREVIEW – this does nothing (but HTML can still call showFile())
-function showFile() {
-  return;
-}
+// 🔹 NO PREVIEW
+function showFile(){}
 
-// 🔹 DOM ready things
+// 🔹 DOM ready
 document.addEventListener("DOMContentLoaded", () => {
-  // enter key sends message
   const input = document.getElementById("user-input");
   if (input) {
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        sendMessage();
-      }
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") sendMessage();
     });
   }
 
-  // 🔹 file input – capture the selected image for OCR
   const fileInput =
     document.getElementById("fileInput") ||
     document.getElementById("image-upload") ||
@@ -239,55 +199,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const imageNameEl = document.getElementById("selected-image-name");
 
   if (fileInput) {
-    fileInput.addEventListener("change", (e) => {
-      const file = e.target.files?.[0] || null;
-      selectedImageFile = file;
-
+    fileInput.addEventListener("change", e => {
+      selectedImageFile = e.target.files?.[0] || null;
       if (imageNameEl) {
-        imageNameEl.textContent = file
-          ? `📎 Image attached: ${file.name}`
+        imageNameEl.textContent = selectedImageFile
+          ? `📎 Image attached: ${selectedImageFile.name}`
           : "";
       }
-
-      console.log("Selected image:", file?.name);
     });
   }
 
-  // ABOUT MEBI POPUP LOGIC
-  const aboutBtn = document.getElementById("aboutMebiBtn");
-  const aboutModal = document.getElementById("aboutMebiModal");
-  const closeBtn = aboutModal
-    ? aboutModal.querySelector(".about-close-btn")
-    : null;
-
-  if (aboutBtn && aboutModal) {
-    aboutBtn.addEventListener("click", () => {
-      aboutModal.style.display = "flex";
-    });
-  }
-
-  if (closeBtn && aboutModal) {
-    closeBtn.addEventListener("click", () => {
-      aboutModal.style.display = "none";
-    });
-  }
-
-  // 🔹 MCQ menu click → prepare MCQ mode
   const mcqMenu = document.getElementById("mcq-menu-item");
   const chat = document.getElementById("chat");
 
   if (mcqMenu && input && chat) {
     mcqMenu.style.cursor = "pointer";
-
     mcqMenu.addEventListener("click", () => {
-      // scroll to chat bottom
       chat.scrollTop = chat.scrollHeight;
-
-      // pre-fill MCQ prompt
       input.value = "Give MCQs on ";
       input.focus();
-
-      // show hint ONLY the first time
       if (!mcqHintShown) {
         const hint = document.createElement("div");
         hint.className = "bubble bot mcq-bubble";
@@ -295,14 +225,13 @@ document.addEventListener("DOMContentLoaded", () => {
           "Type a topic after 'Give MCQs on' (example: Give MCQs on respiration).";
         chat.appendChild(hint);
         chat.scrollTop = chat.scrollHeight;
-
         mcqHintShown = true;
       }
     });
   }
 });
 
-// 🔸 Call backend once secretly to wake it up
+// 🔸 Wake backend once (gentle)
 async function warmupMEBI() {
   try {
     await fetch("/api/ask", {
@@ -310,10 +239,7 @@ async function warmupMEBI() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question: "warmup" })
     });
-  } catch (err) {
-    // ignore warmup errors
-  }
+  } catch {}
 }
 
-// 🔸 Run this automatically when page opens
 window.addEventListener("load", warmupMEBI);
