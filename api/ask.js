@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ reply: "Server API key missing" });
   }
 
-  // 🔹 FULL SYSTEM PROMPT (UNCHANGED CONTENT – ONLY PLACEMENT FIXED)
+  // 🔹 FULL SYSTEM PROMPT (YOUR ORIGINAL – UNCHANGED)
   const systemPrompt = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
@@ -75,43 +75,34 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
         ? question.trim()
         : "Help the student using the image.";
 
-    // 🔹 CORRECT GEMINI REQUEST STRUCTURE
-    const body = {
-      systemInstruction: {
-        parts: [{ text: systemPrompt }]
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: userQuestion },
-            ...(imageData
-              ? [
-                  {
-                    inline_data: {
-                      mime_type: imageType || "image/png",
-                      data: imageData
-                    }
+    // 🔹 STABLE GEMINI REQUEST (OLD BUT RELIABLE)
+    const contents = [
+      {
+        role: "user",
+        parts: [
+          { text: systemPrompt },
+          { text: `Student question:\n${userQuestion}` },
+          ...(imageData
+            ? [
+                {
+                  inline_data: {
+                    mime_type: imageType || "image/png",
+                    data: imageData
                   }
-                ]
-              : [])
-          ]
-        }
-      ]
-    };
+                }
+              ]
+            : [])
+        ]
+      }
+    ];
 
-    // 🔹 timeout protection (prevents hanging)
-    const controller = new AbortController();
-    setTimeout(() => controller.abort(), 9000);
-
-    const response = await globalThis.fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
         apiKey,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-        signal: controller.signal
+        body: JSON.stringify({ contents })
       }
     );
 
@@ -122,8 +113,11 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
     }
 
     const data = await response.json();
-    const replyParts = data?.candidates?.[0]?.content?.parts || [];
-    const replyText = replyParts.map(p => p.text || "").join(" ").trim();
+    const replyText =
+      data?.candidates?.[0]?.content?.parts
+        ?.map(p => p.text || "")
+        .join(" ")
+        .trim() || "";
 
     return res.status(200).json({
       reply: replyText || "Sorry, I couldn't generate an answer."
