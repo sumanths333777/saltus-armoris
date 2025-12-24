@@ -75,7 +75,7 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 
   try {
     const { history, question, imageData, imageType } = req.body || {};
-    const modelName = "gemini-2.5-flash";
+    const modelName = "gemini-1.5-flash";
 
     let contents = [];
 
