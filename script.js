@@ -1,11 +1,11 @@
 // 🔐 SIMPLE CONTENT FILTER FOR MEBI
 const bannedWords = [
-  "sex", "porn", "nude", "xxx", "fuck", "boobs", "dick", "pussy", "bastard", "asshole",
-  "suicide", "kill myself", "murder", "bomb", "terrorist"
+  "sex","porn","nude","xxx","fuck","boobs","dick","pussy","bastard","asshole",
+  "suicide","kill myself","murder","bomb","terrorist"
 ];
 
 const bannedTopics = [
-  "how to hack", "hack wifi", "make bomb", "drugs", "weed", "ganja"
+  "how to hack","hack wifi","make bomb","drugs","weed","ganja"
 ];
 
 let warningCount = 0;
@@ -33,9 +33,9 @@ function formatMebiReply(text) {
   return parts.map((p, i) => `${i + 1}) ${p}`).join("\n");
 }
 
-// 🔹 globals
+// 🔹 GLOBALS
 let selectedImageFile = null;
-let chatHistory = [];
+let chatHistory = []; // 🧠 MEMORY
 let mcqHintShown = false;
 
 // 🔹 File → base64
@@ -60,6 +60,7 @@ async function sendMessage() {
 
   const text = (input.value || "").trim();
 
+  // 🚫 FILTER
   if (isBlockedMessage(text)) {
     warningCount++;
     const bot = document.createElement("div");
@@ -75,15 +76,25 @@ async function sendMessage() {
 
   if (!text && !selectedImageFile) return;
 
+  // 👤 USER BUBBLE
   if (text) {
     const userBubble = document.createElement("div");
     userBubble.className = "bubble user";
     userBubble.textContent = text;
     chat.appendChild(userBubble);
+
+    // 🧠 SAVE USER MEMORY
+    chatHistory.push({ role: "user", text });
   }
 
   input.value = "";
   if (typing) typing.classList.remove("hidden");
+
+  // 🧠 COMBINE LAST 6 MESSAGES (THIS IS THE MAGIC)
+  const combinedQuestion = chatHistory
+    .slice(-6)
+    .map(m => m.text)
+    .join(" || ");
 
   async function askOnce() {
     const imageBase64 = selectedImageFile
@@ -94,7 +105,7 @@ async function sendMessage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        question: text,
+        question: combinedQuestion,
         imageData: imageBase64,
         imageType: selectedImageFile?.type || null
       })
@@ -123,10 +134,14 @@ async function sendMessage() {
 
   if (typing) typing.classList.add("hidden");
 
+  // 🤖 BOT BUBBLE
   const botBubble = document.createElement("div");
   botBubble.className = "bubble bot";
   botBubble.textContent = formatMebiReply(reply);
   chat.appendChild(botBubble);
+
+  // 🧠 SAVE BOT MEMORY
+  chatHistory.push({ role: "bot", text: reply });
 
   selectedImageFile = null;
   if (imageNameEl) imageNameEl.textContent = "";
