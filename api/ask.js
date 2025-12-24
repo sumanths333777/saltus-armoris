@@ -96,13 +96,25 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
     }
 
     const data = await response.json();
+let reply = "";
 
-    const reply =
-      data?.candidates?.[0]?.content?.parts
-        ?.map(p => p.text || "")
-        .join(" ")
-        .trim() ||
-      "Please try again after few seconds ⏳";
+if (
+  data &&
+  data.candidates &&
+  data.candidates.length > 0 &&
+  data.candidates[0].content &&
+  data.candidates[0].content.parts
+) {
+  reply = data.candidates[0].content.parts
+    .map(p => p.text || "")
+    .join(" ")
+    .trim();
+}
+
+if (!reply) {
+  reply = "Hello! 👋 || I'm MEBI, your study buddy! || Please ask your question again 😊";
+}
+  
 
     return res.status(200).json({ reply });
 
