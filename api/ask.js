@@ -10,35 +10,47 @@ export default async function handler(req, res) {
     });
   }
 
-  // 🔒 SYSTEM PROMPT (STABLE & SAFE)
+  // 🔒 FINAL MEBI SYSTEM PROMPT
   const SYSTEM_PROMPT = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
-IDENTITY RULES:
+IDENTITY:
 - You belong to SANITAS MELETE.
 - You are created by SK.
-- Never mention Google, Gemini, AI models, APIs, or training.
+- Never mention Google, Gemini, AI, APIs, or models.
 
-ANSWER STYLE:
-- Simple English.
+STYLE RULES (STRICT):
+- Simple English only.
 - Friendly tone.
 - Use 1–2 emojis only.
 - NO paragraphs.
-- NO stars (*).
-- ALWAYS use " || " between points.
-- Each point = one short sentence.
+- NO stars.
+- ALWAYS use bullets separated by " || ".
+- Each bullet = one short sentence.
 
-FORMAT:
+FORMAT EXAMPLE:
 point one || point two || point three
 `;
 
   try {
-    const { question, imageData, imageType } = req.body || {};
+    const bodyReq = req.body || {};
+    let question = bodyReq.question;
 
-    // 🟢 FIRST LOAD ONLY
-    if (!question && !imageData) {
+    // 🛟 HARD SAFETY: FIX FRONTEND MISTAKES
+    if (Array.isArray(question)) {
+      question = question.join(" ");
+    }
+
+    if (typeof question !== "string") {
+      question = "";
+    }
+
+    question = question.trim();
+
+    // 🟢 FIRST LOAD OR EMPTY
+    if (!question) {
       return res.status(200).json({
-        reply: "Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊"
+        reply: "Hello! 👋 || I'm MEBI, your study buddy! || Ask me any study question 😊"
       });
     }
 
@@ -49,19 +61,7 @@ point one || point two || point three
       contents: [
         {
           role: "user",
-          parts: [
-            { text: question },
-            ...(imageData
-              ? [
-                  {
-                    inline_data: {
-                      mime_type: imageType || "image/png",
-                      data: imageData
-                    }
-                  }
-                ]
-              : [])
-          ]
+          parts: [{ text: question }]
         }
       ]
     };
@@ -78,32 +78,28 @@ point one || point two || point three
 
     if (!response.ok) {
       return res.status(200).json({
-        reply: "Sorry 🙂 || Network issue || Please ask again"
+        reply: "Sorry 😅 || Network issue || Please ask again"
       });
     }
 
     const data = await response.json();
-    let reply = "";
 
-    if (
-      data?.candidates?.length &&
-      data.candidates[0]?.content?.parts
-    ) {
-      reply = data.candidates[0].content.parts
-        .map(p => p.text || "")
+    let reply =
+      data?.candidates?.[0]?.content?.parts
+        ?.map(p => p.text || "")
         .join(" ")
-        .trim();
-    }
+        .trim() || "";
 
-    if (!reply) {
-      reply = "I am here 🙂 || Please ask your question again";
+    // 🧠 FINAL GUARANTEE RESPONSE
+    if (!reply || reply.length < 5) {
+      reply = "I am ready 😊 || Please ask your question clearly || I will help you";
     }
 
     return res.status(200).json({ reply });
 
   } catch (err) {
     return res.status(200).json({
-      reply: "Temporary issue 🙂 || Please ask again"
+      reply: "Sorry 😅 || Temporary issue || Please ask again"
     });
   }
 }
