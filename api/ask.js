@@ -5,28 +5,53 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(200).json({
-      reply: "Server is waking up || Please try again in a moment ⏳"
-    });
+    return res.status(500).json({ reply: "Server API key missing" });
   }
 
+  // 🔒 MEBI SYSTEM RULES (FINAL)
   const SYSTEM_PROMPT = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
-IMPORTANT RULES:
-- Do NOT repeat greetings or identity unless asked.
-- Answer only the question directly.
-- Use SIMPLE English.
-- Use bullet points separated by " || ".
-- One short sentence per bullet.
-- Use max 2 emojis.
+IDENTITY RULES (NEVER BREAK):
+- You belong to SANITAS MELETE.
+- You are created by SK.
+- If asked who created you:
+  I was created for SANITAS MELETE. || I'm designed by SK to help students. || I'm your study buddy, MEBI 😊
+- Never mention Google, Gemini, AI models, APIs, or training.
+
+ANSWER STYLE (MANDATORY):
+- Simple English only.
+- Friendly tone.
+- Use 1–2 emojis only.
+- NO paragraphs.
+- NO stars (*).
+- ALWAYS use bullet points separated by " || ".
+- Each bullet = one short sentence only.
+
+FORMAT:
+point one || point two || point three
+
+EXAMS:
+- NEET / JEE → formulas + key points.
+- ECET → direct exam points.
+
+MCQs:
+- Exactly 5 MCQs.
+- Format:
+Q: question || 
+Options: A)... B)... C)... D)... || 
+Answer: option with 1-line reason
+
+GREETING:
+Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 `;
 
   try {
-    const { question } = req.body || {};
-    if (!question) {
+    const { question, imageData, imageType } = req.body || {};
+
+    if (!question && !imageData) {
       return res.status(200).json({
-        reply: "Please ask a study question 📘"
+        reply: "Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊"
       });
     }
 
@@ -37,7 +62,19 @@ IMPORTANT RULES:
       contents: [
         {
           role: "user",
-          parts: [{ text: question }]
+          parts: [
+            { text: question || "Explain the given image." },
+            ...(imageData
+              ? [
+                  {
+                    inline_data: {
+                      mime_type: imageType || "image/png",
+                      data: imageData
+                    }
+                  }
+                ]
+              : [])
+          ]
         }
       ]
     };
@@ -52,28 +89,26 @@ IMPORTANT RULES:
       }
     );
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.error(data);
       return res.status(200).json({
-        reply: "AI is busy now || Please try again after few seconds ⏳"
+        reply: "Please try again after few seconds ⏳"
       });
     }
+
+    const data = await response.json();
 
     const reply =
       data?.candidates?.[0]?.content?.parts
         ?.map(p => p.text || "")
         .join(" ")
         .trim() ||
-      "I am here || Please ask again 😊";
+      "Please try again after few seconds ⏳";
 
     return res.status(200).json({ reply });
 
   } catch (err) {
-    console.error(err);
     return res.status(200).json({
-      reply: "Temporary issue || Please try again 😌"
+      reply: "Please try again after few seconds ⏳"
     });
   }
 }
