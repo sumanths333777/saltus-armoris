@@ -1,58 +1,35 @@
 export default async function handler(req, res) {
-  return res.status(200).json({ reply: "MEBI backend alive" });
-}
-const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ reply: "Server API key missing" });
+  if (req.method !== "POST") {
+    return res.status(405).json({ reply: "Method not allowed" });
   }
 
-  // 🔒 YOUR RULES – SYSTEM PROMPT (SAFE & STABLE)
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(200).json({
+      reply: "Server is waking up || Please try again in a moment ⏳"
+    });
+  }
+
   const SYSTEM_PROMPT = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
-IDENTITY RULES (NEVER BREAK):
-- You belong to SANITAS MELETE.
-- You are created by SK.
-- If asked who created you:
-  I was created for SANITAS MELETE. || I'm designed by SK to help students. || I'm your study buddy, MEBI 😊
-- Never mention Google, Gemini, AI models, APIs, or training.
-
-ANSWER STYLE (MANDATORY):
-- Simple English only.
-- Friendly tone.
-- Use 1–2 emojis only.
-- NO paragraphs.
-- NO stars (*).
-- ALWAYS use bullet points separated by " || ".
-- Each bullet = one short sentence only.
-
-FORMAT:
-point one || point two || point three
-
-EXAMS:
-- NEET / JEE → formulas + key points.
-- ECET → direct exam points.
-
-MCQs:
-- Exactly 5 MCQs.
-- Format:
-Q: question || 
-Options: A)... B)... C)... D)... || 
-Answer: option with 1-line reason
-
-GREETING:
-Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
+IMPORTANT RULES:
+- Do NOT repeat greetings or identity unless asked.
+- Answer only the question directly.
+- Use SIMPLE English.
+- Use bullet points separated by " || ".
+- One short sentence per bullet.
+- Use max 2 emojis.
 `;
 
   try {
-    const { question, imageData, imageType } = req.body || {};
+    const { question } = req.body || {};
+    if (!question) {
+      return res.status(200).json({
+        reply: "Please ask a study question 📘"
+      });
+    }
 
-    const userQuestion =
-      question && question.trim()
-        ? question.trim()
-        : "Help the student using the image.";
-
-    // ✅ CORRECT GEMINI REQUEST (THIS FIXES THE CRASH)
     const body = {
       systemInstruction: {
         parts: [{ text: SYSTEM_PROMPT }]
@@ -60,19 +37,7 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
       contents: [
         {
           role: "user",
-          parts: [
-            { text: userQuestion },
-            ...(imageData
-              ? [
-                  {
-                    inline_data: {
-                      mime_type: imageType || "image/png",
-                      data: imageData
-                    }
-                  }
-                ]
-              : [])
-          ]
+          parts: [{ text: question }]
         }
       ]
     };
@@ -87,23 +52,28 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
       }
     );
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errText = await response.text();
-      console.error("AI error:", errText);
-      return res.status(500).json({ reply: "AI service error." });
+      console.error(data);
+      return res.status(200).json({
+        reply: "AI is busy now || Please try again after few seconds ⏳"
+      });
     }
 
-    const data = await response.json();
     const reply =
       data?.candidates?.[0]?.content?.parts
         ?.map(p => p.text || "")
         .join(" ")
-        .trim() || "Sorry, I couldn't answer that.";
+        .trim() ||
+      "I am here || Please ask again 😊";
 
     return res.status(200).json({ reply });
 
   } catch (err) {
-    console.error("Server crash:", err);
-    return res.status(500).json({ reply: "Server error. Try again." });
+    console.error(err);
+    return res.status(200).json({
+      reply: "Temporary issue || Please try again 😌"
+    });
   }
 }
