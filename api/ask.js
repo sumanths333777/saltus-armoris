@@ -1,12 +1,14 @@
- export default async function handler(req, res) {
-  return res.status(200).json({ reply: "MEBI backend alive" });
-}
-const apiKey = process.env.GEMINI_API_KEY;
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ reply: "Method not allowed" });
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ reply: "Server API key missing" });
   }
 
-  // 🔒 YOUR RULES – SYSTEM PROMPT (SAFE & STABLE)
+  // 🔒 YOUR RULES – SYSTEM PROMPT
   const SYSTEM_PROMPT = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
@@ -29,17 +31,6 @@ ANSWER STYLE (MANDATORY):
 FORMAT:
 point one || point two || point three
 
-EXAMS:
-- NEET / JEE → formulas + key points.
-- ECET → direct exam points.
-
-MCQs:
-- Exactly 5 MCQs.
-- Format:
-Q: question || 
-Options: A)... B)... C)... D)... || 
-Answer: option with 1-line reason
-
 GREETING:
 Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 `;
@@ -52,7 +43,6 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
         ? question.trim()
         : "Help the student using the image.";
 
-    // ✅ CORRECT GEMINI REQUEST (THIS FIXES THE CRASH)
     const body = {
       systemInstruction: {
         parts: [{ text: SYSTEM_PROMPT }]
