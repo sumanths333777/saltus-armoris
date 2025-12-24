@@ -5,7 +5,9 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ reply: "Server API key missing" });
+    return res.status(200).json({
+      reply: "Hello! 👋 || I'm MEBI, your study buddy! || Server key missing 😊"
+    });
   }
 
   // 🔒 MEBI SYSTEM RULES (FINAL & SAFE)
@@ -27,12 +29,29 @@ ANSWER STYLE (MANDATORY):
 - NO stars (*).
 - ALWAYS use bullet points separated by " || ".
 - Each bullet = one short sentence only.
+
+FORMAT:
+point one || point two || point three
+
+EXAMS:
+- NEET / JEE → formulas + key points.
+- ECET → direct exam points.
+
+MCQs:
+- Exactly 5 MCQs.
+- Format:
+Q: question || 
+Options: A)... B)... C)... D)... || 
+Answer: option with 1-line reason
+
+GREETING:
+Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 `;
 
   try {
     const { question, imageData, imageType } = req.body || {};
 
-    // ✅ First greeting only
+    // 🟢 FIRST LOAD / EMPTY INPUT
     if (!question && !imageData) {
       return res.status(200).json({
         reply: "Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊"
@@ -75,25 +94,35 @@ ANSWER STYLE (MANDATORY):
 
     if (!response.ok) {
       return res.status(200).json({
-        reply: "Please try again after few seconds ⏳"
+        reply: "Hello! 👋 || I'm MEBI, your study buddy! || Please ask your question again 😊"
       });
     }
 
     const data = await response.json();
+    let reply = "";
 
-    // ✅ SAFEST REPLY EXTRACTION
-    const reply =
-      data?.candidates?.[0]?.content?.parts
-        ?.map(p => p.text)
-        .filter(Boolean)
+    if (
+      data &&
+      data.candidates &&
+      data.candidates.length > 0 &&
+      data.candidates[0].content &&
+      data.candidates[0].content.parts
+    ) {
+      reply = data.candidates[0].content.parts
+        .map(p => p.text || "")
         .join(" ")
-        .trim() || "Please try again after few seconds ⏳";
+        .trim();
+    }
+
+    if (!reply) {
+      reply = "Hello! 👋 || I'm MEBI, your study buddy! || Please ask your question again 😊";
+    }
 
     return res.status(200).json({ reply });
 
   } catch (err) {
     return res.status(200).json({
-      reply: "Please try again after few seconds ⏳"
+      reply: "Hello! 👋 || I'm MEBI, your study buddy! || Please ask your question again 😊"
     });
   }
 }
