@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     });
   }
 
-  // 🔒 MEBI SYSTEM RULES (FINAL & SAFE)
+  // 🔒 MEBI SYSTEM PROMPT (STABLE)
   const SYSTEM_PROMPT = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
@@ -51,31 +51,28 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
   try {
     const { question, imageData, imageType } = req.body || {};
 
-    // 🟢 FIRST LOAD / EMPTY INPUT
+    // 🟢 First load
     if (!question && !imageData) {
       return res.status(200).json({
         reply: "Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊"
       });
     }
 
+    // ✅ CORRECT REQUEST BODY (THIS IS THE CURE)
     const body = {
-      systemInstruction: {
-        parts: [{ text: SYSTEM_PROMPT }]
-      },
       contents: [
         {
           role: "user",
           parts: [
+            { text: SYSTEM_PROMPT },
             { text: question || "Explain the given image." },
             ...(imageData
-              ? [
-                  {
-                    inline_data: {
-                      mime_type: imageType || "image/png",
-                      data: imageData
-                    }
+              ? [{
+                  inline_data: {
+                    mime_type: imageType || "image/png",
+                    data: imageData
                   }
-                ]
+                }]
               : [])
           ]
         }
