@@ -23,7 +23,14 @@ function isBlockedMessage(text) {
 function formatMebiReply(text) {
   if (!text) return text;
 
+  const parts = text
+    .split("||")
+    .map(p => p.trim())
+    .filter(p => p.length > 0);
 
+  if (parts.length <= 1) return text;
+
+  return parts.map((p, i) => `${i + 1}) ${p}`).join("\n");
 }
 
 // 🔹 GLOBALS
