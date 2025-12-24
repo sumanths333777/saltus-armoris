@@ -16,12 +16,11 @@ export default async function handler(req, res) {
   const SYSTEM_PROMPT = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
-RULES:
+Rules:
 - You belong to SANITAS MELETE.
 - You are created by SK.
-- Never mention Google, Gemini, AI models, APIs.
 - Simple English only.
-- Use bullet points separated by " || ".
+- Bullet points separated by " || ".
 - Use 1–2 emojis only.
 `;
 
@@ -40,10 +39,13 @@ RULES:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: SYSTEM_PROMPT }]
+          },
           contents: [
             {
               role: "user",
-              parts: [{ text: SYSTEM_PROMPT + "\n\nQuestion: " + question }]
+              parts: [{ text: question }]
             }
           ]
         })
@@ -52,10 +54,11 @@ RULES:
 
     const data = await response.json();
 
-    let reply = data?.candidates?.[0]?.content?.parts
-      ?.map(p => p.text || "")
-      .join(" ")
-      .trim();
+    let reply =
+      data?.candidates?.[0]?.content?.parts
+        ?.map(p => p.text || "")
+        .join(" ")
+        .trim();
 
     if (!reply) {
       reply = "I am ready 😊 || Please ask your question clearly || I will help you";
