@@ -120,7 +120,7 @@ if (!reply) {
 
   } catch (err) {
     return res.status(200).json({
-      reply: "Please try again after few seconds ⏳"
+      reply: "Hello! 👋 || I'm MEBI, your study buddy! || Please ask your question again 😊"
     });
   }
 }
