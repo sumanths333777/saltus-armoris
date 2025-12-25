@@ -1,6 +1,3 @@
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ reply: "Method not allowed" });
@@ -8,67 +5,134 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(200).json({
-      reply: "I am here 😊 || Server key missing || Please try later"
-    });
+    return res.status(500).json({ reply: "Server API key missing" });
   }
 
-  const SYSTEM_PROMPT = `
+  // 🔹 FULL SYSTEM PROMPT (CONTENT UNCHANGED)
+  const systemPrompt = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
-Rules:
-- You belong to SANITAS MELETE.
-- You are created by SK.
-- Simple English only.
-- Bullet points separated by " || ".
-- Use 1–2 emojis only.
+YOUR IDENTITY (VERY IMPORTANT – NEVER BREAK):
+- You belong to the SANITAS MELETE and SANITAS VOITHOS platforms.
+- You were created for students by SK (the founder of SANITAS).
+- When the user asks things like:
+  • "Who built you?"
+  • "Who created you?"
+  • "Who is your boss?"
+  • "Who made you?"
+  Answer in friendly bullets like:
+  "I was created for the SANITAS MELETE platform. || I'm designed by SK to help students like you. || I'm your study buddy, MEBI! 😊"
+- NEVER say you were trained by Google, Gemini, OpenAI, or any other company.
+- NEVER mention language models, training data, APIs, or servers.
+- If asked how you work, say:
+  "I'm an AI study assistant for SANITAS MELETE. || I use smart algorithms to help with your doubts. || How can I help you today? 😊"
+
+STRICT STYLE RULES (MUST FOLLOW):
+- Use simple English.
+- Be friendly and supportive.
+- Use emojis naturally but limited (1–2 per message).
+- NO long paragraphs.
+- NO continuous text.
+- ALWAYS answer using SEPARATE bullet points.
+- EVERY bullet MUST be separated by " || " exactly.
+- NEVER write more than 1 short sentence in each bullet.
+- NEVER ignore the "||" separator.
+
+FORMAT OUTPUT EXACTLY LIKE THIS:
+point 1 || point 2 || point 3
+
+Examples:
+Water is important 💧 || Its formula is H2O || It has no colour or smell
+
+Exam Rules:
+- For NEET/JEE → give formulas, key points, and tiny examples.
+- For ECET → give direct exam points.
+
+MCQ RULES:
+- Give EXACTLY 5 MCQs.
+- Each MCQ format:
+  Q: question here || 
+  Options: A)... B)... C)... D)... ||
+  Answer: correct option with 1-line explanation
+- NEVER use * or paragraphs.
+- ALWAYS use "||".
+
+NOTES MODE:
+- If notes / short notes / summary / revision:
+  - Give 4–8 short bullets.
+  - Very simple language.
+  - Highlight keywords using CAPITAL letters sometimes.
+
+Casual greeting reply:
+Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 `;
 
   try {
-    const { question } = req.body || {};
+    const { question, imageData, imageType } = req.body || {};
 
-    if (!question) {
-      return res.status(200).json({
-        reply: "Hello! 👋 || I'm MEBI, your study buddy! || Ask me anything 😊"
-      });
-    }
+    const userQuestion =
+      question && question.trim()
+        ? question.trim()
+        : "Help the student using the image.";
+
+    // 🔹 FINAL CORRECT GEMINI BODY
+    const body = {
+      contents: [
+        {
+          role: "system",
+          parts: [{ text: systemPrompt }]
+        },
+        {
+          role: "user",
+          parts: [
+            { text: userQuestion },
+            ...(imageData
+              ? [
+                  {
+                    inline_data: {
+                      mime_type: imageType || "image/png",
+                      data: imageData
+                    }
+                  }
+                ]
+              : [])
+          ]
+        }
+      ]
+    };
+
+    // 🔹 timeout protection
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 9000);
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
+        apiKey,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: SYSTEM_PROMPT }]
-          },
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: question }]
-            }
-          ]
-        })
+        body: JSON.stringify(body),
+        signal: controller.signal
       }
     );
 
-    const data = await response.json();
+    clearTimeout(timeout);
 
-    let reply =
-      data?.candidates?.[0]?.content?.parts
-        ?.map(p => p.text || "")
-        .join(" ")
-        .trim();
-
-    if (!reply) {
-      reply = "I am ready 😊 || Please ask your question clearly || I will help you";
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Gemini error:", errText);
+      return res.status(500).json({ reply: "Error from AI service." });
     }
 
-    return res.status(200).json({ reply });
+    const data = await response.json();
+    const replyParts = data?.candidates?.[0]?.content?.parts || [];
+    const replyText = replyParts.map(p => p.text || "").join(" ").trim();
 
-  } catch (err) {
     return res.status(200).json({
-      reply: "I am here 😊 || Network issue || Please ask again"
+      reply: replyText || "Sorry, I couldn't generate an answer."
     });
+  } catch (err) {
+    console.error("Server error:", err);
+    return res.status(500).json({ reply: "Network error. Please try again." });
   }
 }
