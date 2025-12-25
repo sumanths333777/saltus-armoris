@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ reply: "Server API key missing" });
   }
 
-  // 🔹 FULL SYSTEM PROMPT (CONTENT UNCHANGED)
+  // 🔹 SYSTEM PROMPT (CONTENT UNCHANGED)
   const systemPrompt = `
 You are MEBI, a friendly AI study buddy for Indian students.
 
@@ -41,30 +41,13 @@ STRICT STYLE RULES (MUST FOLLOW):
 FORMAT OUTPUT EXACTLY LIKE THIS:
 point 1 || point 2 || point 3
 
-Examples:
-Water is important 💧 || Its formula is H2O || It has no colour or smell
-
 Exam Rules:
 - For NEET/JEE → give formulas, key points, and tiny examples.
 - For ECET → give direct exam points.
 
 MCQ RULES:
 - Give EXACTLY 5 MCQs.
-- Each MCQ format:
-  Q: question here || 
-  Options: A)... B)... C)... D)... ||
-  Answer: correct option with 1-line explanation
-- NEVER use * or paragraphs.
 - ALWAYS use "||".
-
-NOTES MODE:
-- If notes / short notes / summary / revision:
-  - Give 4–8 short bullets.
-  - Very simple language.
-  - Highlight keywords using CAPITAL letters sometimes.
-
-Casual greeting reply:
-Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
 `;
 
   try {
@@ -75,17 +58,15 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
         ? question.trim()
         : "Help the student using the image.";
 
-    // 🔹 FINAL CORRECT GEMINI BODY
+    // ✅ FINAL SAFE GEMINI BODY
     const body = {
       contents: [
         {
-          role: "system",
-          parts: [{ text: systemPrompt }]
-        },
-        {
           role: "user",
           parts: [
-            { text: userQuestion },
+            {
+              text: systemPrompt + "\n\nUser question:\n" + userQuestion
+            },
             ...(imageData
               ? [
                   {
@@ -101,7 +82,6 @@ Hello! 👋 || I'm MEBI, your study buddy! || How can I help you today? 😊
       ]
     };
 
-    // 🔹 timeout protection
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 9000);
 
